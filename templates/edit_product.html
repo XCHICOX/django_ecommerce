@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar Produto{% endblock %}
+
+{% block content %}
+<style>
+    .product-container { max-width: 800px; margin: auto; font-family: sans-serif; }
+    .form-container { background-color: #f9f9f9; padding: 25px; border-radius: 8px; border: 1px solid #eee; }
+    .form-container input[type="text"], .form-container input[type="number"], .form-container input[type="file"], .form-container textarea, .form-container select {
+        width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;
+    }
+    .form-container button {
+        background-color: #28a745; color: white; padding: 12px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; width: 100%; margin-top: 20px;
+    }
+    .form-container button:hover { background-color: #218838; }
+    .back-link { display: block; margin-bottom: 20px; color: #007bff; text-decoration: none; }
+</style>
+
+<div class="product-container">
+    <a href="{% url 'shop:produtos' %}" class="back-link">← Voltar para Lista de Produtos</a>
+    
+    <div class="form-container">
+        <h2>Editar Produto: {{ product.name }}</h2>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <p>
+                <label for="id_extra_field_codigo">Código:</label>
+                <input type="text" name="extra_field_codigo" id="id_extra_field_codigo" value="{{ extra_data.codigo|default:'' }}">
+            </p>
+
+            {{ form.as_p }}
+
+            <!-- Div onde os campos dinâmicos serão inseridos -->
+            <div id="dynamic-fields-container"></div>
+
+            <h3>Imagens do Produto</h3>
+            {{ formset.management_form }}
+            {% for image_form in formset %}
+                <div style="margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
+                    {{ image_form.as_p }}
+                    {% if image_form.instance.pk %}
+                        <img src="{{ image_form.instance.image.url }}" style="height: 50px;">
+                    {% endif %}
+                </div>
+            {% endfor %}
+
+            <button type="submit">Salvar Alterações</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Passa os dados extras existentes do Django para o JS
+    const existingExtraData = {{ extra_data|safe|default:"{}" }};
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const categorySelect = document.getElementById('id_category');
+        const dynamicFieldsContainer = document.getElementById('dynamic-fields-container');
+
+        function loadCategoryFields(categoryId) {
+            dynamicFieldsContainer.innerHTML = ''; // Limpa os campos antigos
+
+            if (categoryId) {
+                fetch(`/produtos/get-category-fields/${categoryId}/`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const fields = data.fields;
+                        if (fields && fields.length > 0) {
+                            fields.forEach(field => {
+                                // Verifica se já existe valor salvo para este campo
+                                const existingValue = existingExtraData[field.nome] || '';
+                                
+                                let fieldHtml = `<p><label for="id_extra_field_${field.nome}">${field.nome}:</label><br>`;
+                                
+                                if (field.tipo === 'selecao' && field.opcoes) {
+                                    fieldHtml += `<select name="extra_field_${field.nome}" id="id_extra_field_${field.nome}" required>`;
+                                    const options = field.opcoes.split(',');
+                                    options.forEach(option => {
+                                        const optVal = option.trim();
+                                        const selected = (optVal === existingValue) ? 'selected' : '';
+                                        fieldHtml += `<option value="${optVal}" ${selected}>${optVal}</option>`;
+                                    });
+                                    fieldHtml += `</select>`;
+                                } else { // Padrão para 'texto'
+                                    fieldHtml += `<input type="text" name="extra_field_${field.nome}" id="id_extra_field_${field.nome}" value="${existingValue}" required>`;
+                                }
+
+                                fieldHtml += `</p>`;
+                                dynamicFieldsContainer.innerHTML += fieldHtml;
+                            });
+                        }
+                    })
+                    .catch(error => console.error('Erro ao buscar campos da categoria:', error));
+            }
+        }
+
+        // Carrega campos ao iniciar se já tiver categoria selecionada
+        if (categorySelect.value) {
+            loadCategoryFields(categorySelect.value);
+        }
+
+        // Carrega campos ao mudar categoria
+        categorySelect.addEventListener('change', function() {
+            loadCategoryFields(this.value);
+        });
+    });
+</script>
+{% endblock %}

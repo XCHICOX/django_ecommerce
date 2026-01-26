@@ -1,0 +1,309 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <title>SoftLabsPB - Sistema de Delivery Completo</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        /* --- Header --- */
+        .header {
+            background: linear-gradient(135deg, #4c1d95 0%, #7c3aed 100%);
+            padding: 15px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            box-sizing: border-box;
+        }
+        .header .logo { font-size: 1.8rem; font-weight: 700; color: #fff; text-decoration: none; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+        .header nav a { margin-left: 25px; text-decoration: none; color: #fff; font-weight: 600; transition: color 0.3s; }
+        .header nav a:hover { color: #e0e7ff; }
+        .header nav a.btn { background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: #1f2937; padding: 10px 20px; border-radius: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: transform 0.3s; }
+        .header nav a.btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
+
+        /* --- Hero Section --- */
+        .hero {
+            background: linear-gradient(135deg, #4c1d95 0%, #7c3aed 100%);
+            color: #fff;
+            text-align: center;
+            padding: 120px 20px 80px;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="rgba(255,255,255,0.1)"/></svg>') repeat;
+            opacity: 0.1;
+            animation: float 20s infinite linear;
+        }
+        @keyframes float { 0% { transform: translateX(-100px); } 100% { transform: translateX(100px); } }
+        .hero h1 { font-size: 3.5rem; margin: 0 0 20px; text-shadow: 0 4px 8px rgba(0,0,0,0.3); animation: fadeInUp 1s ease-out; }
+        .hero p { font-size: 1.3rem; max-width: 700px; margin: 0 auto 30px; opacity: 0.9; line-height: 1.6; animation: fadeInUp 1s ease-out 0.2s both; }
+        .hero .highlight { font-weight: 700; color: #fbbf24; }
+        .hero .cta-button {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: #1f2937;
+            padding: 18px 40px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            text-decoration: none;
+            border-radius: 50px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            transition: all 0.3s;
+            display: inline-block;
+            animation: fadeInUp 1s ease-out 0.4s both;
+        }
+        .hero .cta-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 35px rgba(0,0,0,0.4);
+        }
+
+        /* --- Features Section --- */
+        .features {
+            background: #fff;
+            padding: 80px 20px;
+            text-align: center;
+        }
+        .features h2 { font-size: 2.5rem; color: #4c1d95; margin-bottom: 50px; }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .feature-card {
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+        .feature-card .material-icons {
+            font-size: 3rem;
+            color: #7c3aed;
+            margin-bottom: 20px;
+        }
+        .feature-card h3 { font-size: 1.5rem; color: #4c1d95; margin-bottom: 15px; }
+        .feature-card p { color: #6b7280; line-height: 1.6; }
+
+        /* --- Benefits Section --- */
+        .benefits {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            padding: 80px 20px;
+            text-align: center;
+        }
+        .benefits h2 { font-size: 2.5rem; margin-bottom: 50px; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+        .benefits-list {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: left;
+            font-size: 1.2rem;
+            line-height: 2;
+        }
+        .benefits-list li { margin-bottom: 15px; position: relative; padding-left: 30px; }
+        .benefits-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #fbbf24;
+            font-weight: bold;
+        }
+
+        /* --- FAQ Section --- */
+        .faq {
+            background: #fff;
+            padding: 80px 20px;
+            text-align: center;
+        }
+        .faq h2 { font-size: 2.5rem; color: #4c1d95; margin-bottom: 50px; }
+        .faq-item {
+            max-width: 800px;
+            margin: 0 auto 20px;
+            text-align: left;
+        }
+        .faq-question {
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: #4c1d95;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+        }
+        .faq-question:hover { background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%); }
+        .faq-question.active { background: linear-gradient(135deg, #7c3aed 0%, #4c1d95 100%); color: #fff; border-color: #7c3aed; margin-bottom: 0; border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+        .faq-answer {
+            display: none;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-top: none;
+            background-color: #fff;
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+            color: #6b7280;
+            line-height: 1.6;
+        }
+        .faq-answer.show { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .faq-question .material-icons { transition: transform 0.3s; }
+        .faq-question.active .material-icons { transform: rotate(180deg); }
+
+        /* --- Animations --- */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- Responsive --- */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.5rem; }
+            .hero p { font-size: 1.1rem; }
+            .features-grid { grid-template-columns: 1fr; }
+            .header { padding: 10px 5%; }
+            .header .logo { font-size: 1.4rem; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <a href="{% url 'index' %}" class="logo">SoftLabsPB</a>
+        <nav>
+            <a href="{% url 'login' %}" class="btn">Área do Cliente</a>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <h1>Sistema de Delivery Completo</h1>
+        <p>Automatize seus pedidos, gerencie entregas e fidelize clientes com uma solução rápida, estável e profissional. <span class="highlight">Ganhe eficiência, reduza erros e aumente suas vendas!</span></p>
+        <p><strong>A partir de R$ 39,99 nos 3 primeiros meses.</strong></p>
+        <a href="https://wa.me/558393203139?text=Ol%C3%A1!%20Gostaria%20de%20contratar%20o%20sistema%20de%20delivery%20da%20SoftLabsPB." class="cta-button" target="_blank">Quero Contratar</a>
+    </section>
+
+    <section class="features">
+        <h2>Por que escolher nosso sistema?</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <span class="material-icons">restaurant_menu</span>
+                <h3>Cardápio Online</h3>
+                <p>Exiba seu cardápio de forma atrativa e permita que clientes façam pedidos 24/7.</p>
+            </div>
+            <div class="feature-card">
+                <span class="material-icons">local_shipping</span>
+                <h3>Gestão de Entregas</h3>
+                <p>Controle pedidos em tempo real, otimize rotas e melhore a eficiência das entregas.</p>
+            </div>
+            <div class="feature-card">
+                <span class="material-icons">analytics</span>
+                <h3>Relatórios Detalhados</h3>
+                <p>Acompanhe vendas, lucros e desempenho com relatórios completos e precisos.</p>
+            </div>
+            <div class="feature-card">
+                <span class="material-icons">support_agent</span>
+                <h3>Atendimento Automatizado</h3>
+                <p>Atendente virtual para receber pedidos via WhatsApp, organizando tudo automaticamente.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="benefits">
+        <h2>Benefícios Exclusivos</h2>
+        <ul class="benefits-list">
+            <li>Atendimento imediato ao cliente, sem filas ou mensagens ignoradas</li>
+            <li>Envio automático do cardápio, inclusive quando o pedido é feito por áudio</li>
+            <li>Pedidos organizados, impressos automaticamente e enviados direto para a cozinha</li>
+            <li>Relatórios completos de ganhos: diário, semanal, mensal e anual</li>
+            <li>Integração com PDV para vendas presenciais</li>
+            <li>Criação e gestão de combos promocionais</li>
+            <li>Acesso seguro com controle de usuários</li>
+        </ul>
+    </section>
+
+    <section class="faq">
+        <h2>Perguntas Frequentes</h2>
+        <div class="faq-item">
+            <button class="faq-question" onclick="toggleFAQ(this)">
+                O sistema Softdelivery funciona para delivery?
+                <span class="material-icons">expand_more</span>
+            </button>
+            <div class="faq-answer">
+                Sim, o sistema da SoftLabsPB é especialmente desenvolvido para restaurantes e estabelecimentos que oferecem delivery, permitindo gerenciar pedidos online, cardápio digital e entregas de forma eficiente.
+            </div>
+        </div>
+        <div class="faq-item">
+            <button class="faq-question" onclick="toggleFAQ(this)">
+                Preciso cadastrar cartão de crédito para testar?
+                <span class="material-icons">expand_more</span>
+            </button>
+            <div class="faq-answer">
+                Não, você não precisa cadastrar cartão de crédito para testar o sistema. Oferecemos um período de teste gratuito sem necessidade de informações de pagamento.
+            </div>
+        </div>
+        <div class="faq-item">
+            <button class="faq-question" onclick="toggleFAQ(this)">
+                O sistema cobra taxa por pedido?
+                <span class="material-icons">expand_more</span>
+            </button>
+            <div class="faq-answer">
+                Não, não cobramos taxa por pedido. Nosso modelo de cobrança é baseado em uma mensalidade fixa, sem comissões adicionais por transação.
+            </div>
+        </div>
+        <div class="faq-item">
+            <button class="faq-question" onclick="toggleFAQ(this)">
+                Como funciona o pagamento online na SoftlabsPB?
+                <span class="material-icons">expand_more</span>
+            </button>
+            <div class="faq-answer">
+                Seus clientes podem pagar direto pelo cardápio digital, com opções como PIX, cartão de crédito.
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <p>&copy; {% now "Y" %} SoftLabsPB. Todos os direitos reservados.</p>
+    </footer>
+
+    <script>
+        function toggleFAQ(btn) {
+            btn.classList.toggle('active');
+            const content = btn.nextElementSibling;
+            content.classList.toggle('show');
+        }
+    </script>
+</body>
+</html>

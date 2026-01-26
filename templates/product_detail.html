@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ produto.name }} - {{ tenant.name }}</title>
+    <style>
+        body { font-family: sans-serif; background-color: #f9f9f9; margin: 0; }
+        .container { max-width: 900px; margin: 40px auto; display: flex; background: #fff; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); overflow: hidden; }
+        .product-gallery { flex: 1; }
+        .product-gallery img { width: 100%; height: auto; display: block; }
+        .product-details { flex: 1; padding: 40px; }
+        .product-details h1 { font-size: 2.5rem; margin-top: 0; }
+        .product-details .price { font-size: 2rem; color: #28a745; font-weight: bold; margin: 20px 0; }
+        .product-details .description { color: #555; line-height: 1.6; }
+        .buy-button {
+            display: inline-block;
+            width: 100%;
+            padding: 15px;
+            margin-top: 10px;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .add-to-cart-button { background-color: #28a745; }
+        .mp-button { background-color: #009ee3; /* Cor do Mercado Pago */ }
+        .mp-button:hover { background-color: #0089c4; }
+
+        .ps-button { background-color: #ffc800; color: #000; /* Cor do PagSeguro */ }
+        .ps-button:hover { background-color: #e6b400; }
+
+        .payment-options { margin-top: 30px; }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 10px;
+            color: #555;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .back-link:hover { text-decoration: underline; color: #333; }
+
+        /* Estilos do Carrossel */
+        .slideshow-container { position: relative; margin: auto; }
+        .mySlides { display: none; }
+        .prev, .next {
+            cursor: pointer;
+            position: absolute;
+            top: 50%;
+            width: auto;
+            margin-top: -22px;
+            padding: 16px;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+            transition: 0.6s ease;
+            border-radius: 0 3px 3px 0;
+            user-select: none;
+            background-color: rgba(0,0,0,0.3);
+        }
+        .next { right: 0; border-radius: 3px 0 0 3px; }
+        .prev:hover, .next:hover { background-color: rgba(0,0,0,0.8); }
+        .dot-container { text-align: center; margin-top: 10px; }
+        .dot {
+            cursor: pointer;
+            height: 10px;
+            width: 10px;
+            margin: 0 2px;
+            background-color: #bbb;
+            border-radius: 50%;
+            display: inline-block;
+            transition: background-color 0.6s ease;
+        }
+        .active, .dot:hover { background-color: #717171; }
+        .fade { animation-name: fade; animation-duration: 1.5s; }
+        @keyframes fade { from {opacity: .4} to {opacity: 1} }
+    </style>
+</head>
+<body>
+    <div style="max-width: 900px; margin: 20px auto 0; padding: 0 10px;">
+        <a href="{% url 'vitrine' tenant_slug=tenant.slug %}" class="back-link">← Voltar para a Vitrine</a>
+    </div>
+    <div class="container">
+        <div class="product-gallery">
+            <div class="slideshow-container">
+                {% for image in produto.images.all %}
+                    <div class="mySlides fade">
+                        <img src="{{ image.image.url }}" alt="{{ produto.name }}" style="width:100%">
+                    </div>
+                {% empty %}
+                    <img src="https://via.placeholder.com/450" alt="Sem imagem" style="width:100%">
+                {% endfor %}
+                
+                {% if produto.images.count > 1 %}
+                    <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
+                    <a class="next" onclick="plusSlides(1)">&#10095;</a>
+                    <div class="dot-container">
+                        {% for image in produto.images.all %}
+                            <span class="dot" onclick="currentSlide({{ forloop.counter }})"></span>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="product-details">
+            <h1>{{ produto.name }}</h1>
+            <p class="price">R$ {{ produto.price }}</p>
+            <p class="description">{{ produto.description|linebreaks }}</p>
+
+            <form action="{% url 'add_to_cart' tenant_slug=tenant.slug product_id=produto.id %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="buy-button add-to-cart-button">Adicionar ao Carrinho</button>
+            </form>
+
+            <div class="payment-options">
+                {% if tenant.mercadopago_api_key %}
+                <form action="{% url 'create_payment' tenant_slug=tenant.slug product_id=produto.id gateway='mercadopago' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="buy-button mp-button">Pagar com Mercado Pago</button>
+                </form>
+                {% endif %}
+
+                {% if tenant.pagseguro_api_key %}
+                <form action="{% url 'create_payment' tenant_slug=tenant.slug product_id=produto.id gateway='pagseguro' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="buy-button ps-button">Pagar com PagSeguro</button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let slideIndex = 1;
+        showSlides(slideIndex);
+
+        function plusSlides(n) {
+            showSlides(slideIndex += n);
+        }
+
+        function currentSlide(n) {
+            showSlides(slideIndex = n);
+        }
+
+        function showSlides(n) {
+            let i;
+            let slides = document.getElementsByClassName("mySlides");
+            let dots = document.getElementsByClassName("dot");
+            if (slides.length === 0) return;
+            if (n > slides.length) {slideIndex = 1}
+            if (n < 1) {slideIndex = slides.length}
+            for (i = 0; i < slides.length; i++) {
+                slides[i].style.display = "none";
+            }
+            for (i = 0; i < dots.length; i++) {
+                dots[i].className = dots[i].className.replace(" active", "");
+            }
+            slides[slideIndex-1].style.display = "block";
+            if (dots.length > 0) {
+                dots[slideIndex-1].className += " active";
+            }
+        }
+    </script>
+</body>
+</html>

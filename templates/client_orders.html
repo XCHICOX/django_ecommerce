@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Área do Cliente - Meus Pedidos</title>
+    <style>
+        body { font-family: sans-serif; margin: 0; background-color: #f9f9f9; }
+        .container { max-width: 800px; margin: 40px auto; padding: 20px; background: #fff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h2 { color: #333; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; }
+        .search-box { margin-bottom: 30px; text-align: center; padding: 20px; background-color: #f1f1f1; border-radius: 8px; }
+        input[type="tel"] { padding: 12px; width: 60%; font-size: 16px; border: 1px solid #ddd; border-radius: 4px; margin-right: 10px; }
+        button { padding: 12px 24px; font-size: 16px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; transition: background 0.3s; }
+        button:hover { background-color: #0056b3; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #f8f8f8; color: #555; }
+        
+        .status-paid { color: green; font-weight: bold; background-color: #e8f5e9; padding: 4px 8px; border-radius: 4px; }
+        .status-pending { color: orange; font-weight: bold; background-color: #fff3e0; padding: 4px 8px; border-radius: 4px; }
+        .status-cancelled { color: red; font-weight: bold; background-color: #ffebee; padding: 4px 8px; border-radius: 4px; }
+        .status-shipped { color: blue; font-weight: bold; background-color: #e3f2fd; padding: 4px 8px; border-radius: 4px; }
+        
+        .back-link { display: block; margin-top: 30px; text-align: center; text-decoration: none; color: #555; font-weight: bold; }
+        .back-link:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Meus Pedidos</h2>
+    
+    <div class="search-box">
+        <p style="margin-top: 0; color: #666;">Informe seu número de telefone para acompanhar suas compras{% if current_tenant %} na loja <strong>{{ current_tenant.name }}</strong>{% endif %}.</p>
+        <form method="get">
+            {% if current_tenant %}
+                <input type="hidden" name="tenant_slug" value="{{ current_tenant.slug }}">
+            {% endif %}
+            <input type="tel" name="phone" placeholder="Ex: 11999999999" value="{{ phone|default:'' }}" required>
+            <button type="submit">Buscar Pedidos</button>
+        </form>
+    </div>
+
+    {% if phone %}
+        {% if orders %}
+            <h3 style="color: #333;">Histórico de Compras</h3>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Pedido</th>
+                            <th>Data</th>
+                            <th>Loja</th>
+                            <th>Itens</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                        <tr>
+                            <td>#{{ order.id }}</td>
+                            <td>{{ order.created_at|date:"d/m/Y H:i" }}</td>
+                            <td>{{ order.tenant.name }}</td>
+                            <td>
+                                <ul style="margin: 0; padding-left: 20px; font-size: 0.9em; color: #555;">
+                                    {% for item in order.items.all %}
+                                        <li>{{ item.quantity }}x {{ item.product_name }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </td>
+                            <td>R$ {{ order.total_amount|floatformat:2 }}</td>
+                            <td>
+                                <span class="status-{{ order.status }}">{{ order.get_status_display }}</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p style="text-align: center; color: #666; padding: 20px;">Nenhum pedido encontrado para o telefone <strong>{{ phone }}</strong>.</p>
+        {% endif %}
+    {% endif %}
+    
+    {% if current_tenant %}
+        <a href="{% url 'vitrine' tenant_slug=current_tenant.slug %}" class="back-link">← Voltar para a loja</a>
+    {% else %}
+        <a href="/" class="back-link">← Voltar para a página inicial</a>
+    {% endif %}
+</div>
+</body>
+</html>

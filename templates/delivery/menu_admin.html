@@ -1,0 +1,266 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin do Cardápio{% endblock %}
+
+{% block content %}
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+    .admin-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        margin-top: 20px;
+    }
+    .admin-card {
+        background-color: #fff;
+        padding: 25px;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        transition: transform 0.2s;
+    }
+    .admin-card h3 {
+        margin-top: 0;
+        border-bottom: 2px solid #eee;
+        padding-bottom: 10px;
+        color: #333;
+    }
+    .form-group, form p { margin-bottom: 15px; }
+    .form-group label, form p label { display: block; margin-bottom: 5px; font-weight: 600; color: #555; }
+    .form-group input, .form-group select, .form-group textarea,
+    form p input, form p select, form p textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        box-sizing: border-box;
+        font-size: 0.95rem;
+        background-color: #f9f9f9;
+        transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus,
+    form p input:focus, form p select:focus, form p textarea:focus {
+        border-color: #007bff;
+        background-color: #fff;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+    }
+    .save-btn-icon {
+        background-color: #28a745;
+        color: white;
+        width: 50px;
+        height: 50px;
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 15px;
+        margin-left: auto;
+        transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .save-btn-icon:hover { background-color: #218838; transform: scale(1.1); box-shadow: 0 6px 8px rgba(0,0,0,0.15); }
+    .save-btn-icon .material-icons { font-size: 24px; }
+
+    .item-list {
+        list-style: none;
+        padding: 0;
+    }
+    .item-list li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    .delete-icon-btn {
+        background: none;
+        border: none;
+        color: #dc3545;
+        cursor: pointer;
+        padding: 5px;
+        border-radius: 50%;
+        transition: background-color 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .delete-icon-btn:hover {
+        background-color: #ffebee;
+    }
+
+    /* Accordion Styles */
+    .accordion-btn {
+        width: 100%; padding: 15px; background-color: #f8f9fa; border: 1px solid #ddd; border-radius: 5px;
+        text-align: left; font-weight: bold; font-size: 1.1rem; cursor: pointer; margin-bottom: 5px;
+        display: flex; justify-content: space-between; align-items: center; color: #333; transition: all 0.2s;
+    }
+    .accordion-btn:hover { background-color: #e2e6ea; }
+    .accordion-btn.active { background-color: #007bff; color: white; border-color: #007bff; margin-bottom: 0; border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+    .accordion-content {
+        display: none; padding: 15px; border: 1px solid #ddd; border-top: none; margin-bottom: 10px;
+        background-color: #fff; border-bottom-left-radius: 5px; border-bottom-right-radius: 5px;
+    }
+    .accordion-content.show { display: block; animation: fadeIn 0.3s; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    @media (max-width: 992px) {
+        .admin-grid {
+            grid-template-columns: 1fr;
+        }
+        .admin-card {
+            padding: 20px;
+        }
+    }
+</style>
+
+<h2>Administração do Cardápio</h2>
+
+<div class="admin-grid">
+    
+    <div>
+        <div class="admin-card">
+            <h3>Adicionar Novo Item</h3>
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="form_type" value="item">
+                {{ item_form.as_p }}
+                <button type="submit" class="save-btn-icon" title="Salvar Item"><span class="material-icons">save</span></button>
+            </form>
+        </div>
+
+        <div class="admin-card" style="margin-top: 30px;">
+            <h3>Itens do Cardápio</h3>
+            {% regroup menu_items by category as category_list %}
+            
+            {% for category in category_list %}
+                <button class="accordion-btn" onclick="toggleAccordion(this)">
+                    {{ category.grouper.name }}
+                    <span class="material-icons">expand_more</span>
+                </button>
+                <div class="accordion-content">
+                    <ul class="item-list">
+                        {% for item in category.list %}
+                            <li>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    {% if item.image %}
+                                        <img src="{{ item.image.url }}" alt="{{ item.name }}" style="height: 40px; width: 40px; object-fit: cover; border-radius: 4px;">
+                                    {% endif %}
+                                    <div>
+                                        <strong>{{ item.name }}</strong><br>
+                                        <small style="color: #666;">R$ {{ item.price|floatformat:2 }}</small>
+                                    </div>
+                                </div>
+                                <form method="post" onsubmit="return confirm('Tem certeza que deseja excluir este item?');" style="margin: 0;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="form_type" value="delete_item">
+                                    <input type="hidden" name="item_id" value="{{ item.id }}">
+                                    <button type="submit" class="delete-icon-btn" title="Excluir"><span class="material-icons">delete</span></button>
+                                </form>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% empty %}
+                <p style="color: #666; padding: 10px 0;">Nenhum item cadastrado.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div>
+        <div class="admin-card" style="margin-bottom: 30px;">
+            <h3>Adicionar Categoria</h3>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="form_type" value="category">
+                {{ category_form.as_p }}
+                <button type="submit" class="save-btn-icon" title="Salvar Categoria"><span class="material-icons">save</span></button>
+            </form>
+            <hr>
+            <h4>Categorias Existentes</h4>
+            <ul class="item-list">
+                {% for category in categories %}
+                    <li>
+                        <span>{{ category.name }}</span>
+                        <form method="post" onsubmit="return confirm('Tem certeza? Isso pode excluir itens associados.');" style="margin: 0;">
+                            {% csrf_token %}
+                            <input type="hidden" name="form_type" value="delete_category">
+                            <input type="hidden" name="category_id" value="{{ category.id }}">
+                            <button type="submit" class="delete-icon-btn" title="Excluir"><span class="material-icons">delete</span></button>
+                        </form>
+                    </li>
+                {% empty %}
+                    <li>Nenhuma categoria cadastrada.</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="admin-card" style="margin-bottom: 30px;">
+            <h3>Adicionar Opcionais</h3>
+            <p style="font-size: 0.9rem; color: #666;">Crie opcionais (ex: Bacon Extra, Borda Recheada) e vincule a uma categoria.</p>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="form_type" value="optional">
+                {{ optional_form.as_p }}
+                <button type="submit" class="save-btn-icon" title="Salvar Opcional"><span class="material-icons">save</span></button>
+            </form>
+            <hr>
+            <h4>Opcionais Existentes</h4>
+            <ul class="item-list">
+                {% for opt in optionals %}
+                    <li>
+                        <span>{{ opt.name }} ({{ opt.category.name }}) - <strong>R$ {{ opt.price|floatformat:2 }}</strong></span>
+                        <form method="post" onsubmit="return confirm('Excluir este opcional?');" style="margin: 0;">
+                            {% csrf_token %}
+                            <input type="hidden" name="form_type" value="delete_optional">
+                            <input type="hidden" name="optional_id" value="{{ opt.id }}">
+                            <button type="submit" class="delete-icon-btn" title="Excluir"><span class="material-icons">delete</span></button>
+                        </form>
+                    </li>
+                {% empty %}
+                    <li>Nenhum opcional cadastrado.</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="admin-card">
+            <h3>Adicionar Bairro e Taxa de Entrega</h3>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="form_type" value="zone">
+                {{ zone_form.as_p }}
+                <button type="submit" class="save-btn-icon" title="Salvar Bairro"><span class="material-icons">save</span></button>
+            </form>
+            <hr>
+            <h4>Bairros Cadastrados</h4>
+            <ul class="item-list">
+                {% for zone in delivery_zones %}
+                    <li>
+                        <span>{{ zone.neighborhood }} - <strong>R$ {{ zone.delivery_fee|floatformat:2 }}</strong></span>
+                        <form method="post" onsubmit="return confirm('Excluir este bairro?');" style="margin: 0;">
+                            {% csrf_token %}
+                            <input type="hidden" name="form_type" value="delete_zone">
+                            <input type="hidden" name="zone_id" value="{{ zone.id }}">
+                            <button type="submit" class="delete-icon-btn" title="Excluir"><span class="material-icons">delete</span></button>
+                        </form>
+                    </li>
+                {% empty %}
+                    <li>Nenhum bairro cadastrado.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleAccordion(btn) {
+    btn.classList.toggle('active');
+    const content = btn.nextElementSibling;
+    content.classList.toggle('show');
+    const icon = btn.querySelector('.material-icons');
+    icon.textContent = content.classList.contains('show') ? 'expand_less' : 'expand_more';
+}
+</script>
+
+{% endblock %}

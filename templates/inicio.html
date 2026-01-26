@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+
+{% block title %}Painel de Vendas{% endblock %}
+
+{% block content %}
+<div style="padding: 20px;">
+    <h2>Painel de Vendas</h2>
+    <p>Bem-vindo, {{ user.tenant.name }}!</p>
+
+    <div style="margin-top: 30px;">
+        <h3>Pedidos Concluídos</h3>
+        {% if completed_orders %}
+            <table border="1" cellpadding="10" cellspacing="0" style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                <thead>
+                    <tr style="background-color: #f2f2f2;">
+                        <th>ID Pedido</th>
+                        <th>Data</th>
+                        <th>Cliente (Tel)</th>
+                        <th>Itens Comprados</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in completed_orders %}
+                    <tr>
+                        <td>#{{ order.id }}</td>
+                        <td>{{ order.created_at|date:"d/m/Y H:i" }}</td>
+                        <td>
+                            {{ order.customer_phone }}
+                            <br>
+                            <a href="https://wa.me/55{{ order.customer_phone|cut:' '|cut:'-'|cut:'('|cut:')' }}?text=Olá! Confirmamos o recebimento do pagamento do seu pedido %23{{ order.id }} na loja {{ user.tenant.name }}. Seus itens já estão sendo separados! 📦✨" target="_blank" style="display: inline-block; margin-top: 5px; background-color: #25D366; color: white; padding: 4px 8px; border-radius: 4px; text-decoration: none; font-size: 0.8rem; font-weight: bold;">
+                                📱 Avisar Recebimento
+                            </a>
+                        </td>
+                        <td>
+                            <ul style="margin: 0; padding-left: 20px;">
+                                {% for item in order.items.all %}
+                                    <li>
+                                        {{ item.quantity }}x {{ item.product_name }}
+                                        <br>
+                                        <small style="color: #555;">
+                                            Cód: {{ item.product.extra_data.codigo|default:"-" }} | Tam: {{ item.product.extra_data.Tamanho|default:"-" }} | Unit: R$ {{ item.price|floatformat:2 }}
+                                        </small>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                        <td>R$ {{ order.total_amount|floatformat:2 }}</td>
+                        <td>
+                            <span style="color: green; font-weight: bold;">{{ order.get_status_display }}</span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>Nenhum pedido concluído encontrado.</p>
+        {% endif %}
+    </div>
+
+    <div style="margin-top: 40px;">
+        <h3>Carrinhos Ativos (Em andamento)</h3>
+        {% if active_carts %}
+            <table border="1" cellpadding="10" cellspacing="0" style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                <thead>
+                    <tr style="background-color: #f2f2f2;">
+                        <th>ID Carrinho</th>
+                        <th>Última Atualização</th>
+                        <th>Cliente (Tel)</th>
+                        <th>Itens</th>
+                        <th>Total Atual</th>
+                        <th>Ação</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cart in active_carts %}
+                    <tr>
+                        <td>#{{ cart.id }}</td>
+                        <td>{{ cart.updated_at|date:"d/m/Y H:i" }}</td>
+                        <td>
+                            {{ cart.phone_number|default:"Convidado" }}
+                            {% if cart.phone_number %}
+                            <br>
+                            <a href="https://wa.me/55{{ cart.phone_number|cut:' '|cut:'-'|cut:'('|cut:')' }}?text=Olá! Vimos que você não finalizou sua compra na loja {{ user.tenant.name }}. 🛒 Ficou com alguma dúvida ou teve problema no pagamento? Estamos aqui para ajudar! 😉" target="_blank" style="display: inline-block; margin-top: 5px; background-color: #25D366; color: white; padding: 4px 8px; border-radius: 4px; text-decoration: none; font-size: 0.8rem; font-weight: bold;">
+                                📱 Recuperar Venda
+                            </a>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <ul style="margin: 0; padding-left: 20px;">
+                                {% for item in cart.items.all %}
+                                    <li>
+                                        {{ item.quantity }}x {{ item.product.name }}
+                                        <br>
+                                        <small style="color: #555;">
+                                            Cód: {{ item.product.extra_data.codigo|default:"-" }} | Tam: {{ item.product.extra_data.Tamanho|default:"-" }} | Unit: R$ {{ item.product.price|floatformat:2 }}
+                                        </small>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                        <td>R$ {{ cart.total|floatformat:2 }}</td>
+                        <td>
+                            <form action="{% url 'shop:delete_cart_dashboard' cart.id %}" method="post" onsubmit="return confirm('Tem certeza que deseja excluir este carrinho?');" style="margin: 0;">
+                                {% csrf_token %}
+                                <button type="submit" style="background-color: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.9rem;">Excluir</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>Nenhum carrinho ativo no momento.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

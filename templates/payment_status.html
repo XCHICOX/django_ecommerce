@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Status do Pagamento</title>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #f4f4f9; }
+        .status-box { text-align: center; padding: 40px; background: #fff; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .status-box h1 { margin-top: 0; }
+        .success { color: #28a745; }
+        .failure { color: #dc3545; }
+        .pending { color: #ffc107; }
+        .status-box a { display: inline-block; margin-top: 20px; padding: 10px 20px; background: #007bff; color: #fff; text-decoration: none; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <div class="status-box">
+        {% if status == 'sucesso' %}
+            <h1 class="success">Pagamento Aprovado!</h1>
+            <p>Obrigado pela sua compra. Seu pedido foi recebido com sucesso.</p>
+        {% elif status == 'falha' %}
+            <h1 class="failure">Pagamento Recusado</h1>
+            <p>Houve um problema ao processar seu pagamento. Por favor, tente novamente.</p>
+        {% elif status == 'pendente' %}
+            <h1 class="pending">Pagamento Pendente</h1>
+            <p>Seu pagamento está aguardando confirmação. Avisaremos assim que for aprovado.</p>
+        {% endif %}
+        <a href="{% url 'index' %}">Voltar para o Início</a>
+    </div>
+</body>
+</html>

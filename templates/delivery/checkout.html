@@ -1,0 +1,149 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}">
+    <title>Finalizar Pedido - {{ tenant.name }}</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+        body { font-family: 'Poppins', sans-serif; margin: 0; background-color: #f8f9fa; color: #333; }
+        .container { max-width: 900px; margin: 40px auto; padding: 0 20px; }
+        .checkout-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 40px; }
+        .form-section, .summary-section { background-color: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        h2, h3 { margin-top: 0; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; text-transform: uppercase; }
+        .summary-item { display: flex; justify-content: space-between; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid #eee; }
+        .combo-choices-list { list-style: none; padding-left: 15px; margin: 5px 0 0 0; font-size: 0.85rem; color: #666; }
+        .item-price-actions { text-align: right; }
+        .remove-btn { color: #dc3545; text-decoration: none; font-size: 0.8rem; margin-top: 5px; display: inline-block; }
+        .total-line { display: flex; justify-content: space-between; font-weight: 600; padding: 10px 0; }
+        .grand-total { font-size: 1.5rem; font-weight: 700; color: #28a745; border-top: 2px solid #333; margin-top: 10px; }
+        .submit-btn { width: 100%; padding: 15px; background-color: #c9302c; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 1.2rem; font-weight: 700; margin-top: 20px; }
+        .back-link { display: inline-block; margin-bottom: 20px; text-decoration: none; color: #007bff; font-weight: 600; }
+        @media (max-width: 768px) { .checkout-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="{% url 'delivery:customer_menu' tenant_slug=tenant.slug %}" class="back-link">← Voltar ao Cardápio</a>
+        <h2>Finalizar Pedido</h2>
+        <div class="checkout-grid">
+            <div class="form-section">
+                <h3>Seus Dados</h3>
+                <form method="post" id="checkout-form">
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        <label for="{{ form.customer_name.id_for_label }}">{{ form.customer_name.label }}</label>
+                        {{ form.customer_name }}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.customer_whatsapp.id_for_label }}">{{ form.customer_whatsapp.label }}</label>
+                        {{ form.customer_whatsapp }}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.delivery_address.id_for_label }}">{{ form.delivery_address.label }}</label>
+                        {{ form.delivery_address }}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.delivery_zone.id_for_label }}">{{ form.delivery_zone.label }}</label>
+                        {{ form.delivery_zone }}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.payment_method.id_for_label }}">{{ form.payment_method.label }}</label>
+                        {{ form.payment_method }}
+                    </div>
+                    <div class="form-group" id="change-for-group" style="display: none;">
+                        <label for="{{ form.change_for.id_for_label }}">{{ form.change_for.label }}</label>
+                        {{ form.change_for }}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.observations.id_for_label }}">{{ form.observations.label }}</label>
+                        {{ form.observations }}
+                    </div>
+
+                    <button type="submit" class="submit-btn">Confirmar e Enviar Pedido</button>
+                </form>
+            </div>
+            <div class="summary-section">
+                <h3>Resumo do Pedido</h3>
+                {% for item in cart_items %}
+                <div class="summary-item">
+                    <div>
+                        <span>{{ item.quantity }}x <strong>{{ item.name }}</strong></span>
+                        {% if item.is_combo %}
+                            <ul class="combo-choices-list">
+                                {% for choice in item.choices %}
+                                    <li>- {{ choice.name }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                        {% if item.optionals %}
+                            <ul class="combo-choices-list">
+                                {% for opt in item.optionals %}
+                                    <li>+ {{ opt.name }} (R$ {{ opt.price|floatformat:2 }})</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+                    <div class="item-price-actions">
+                        <span>R$ {{ item.subtotal|floatformat:2 }}</span>
+                        <a href="{% url 'delivery:remove_from_cart' tenant_slug=tenant.slug cart_key=item.key %}" class="remove-btn">Remover</a>
+                    </div>
+                </div>
+                {% endfor %}
+                <div class="total-line">
+                    <span>Subtotal</span>
+                    <span id="subtotal">R$ {{ items_total|floatformat:2 }}</span>
+                </div>
+                <div class="total-line">
+                    <span>Taxa de Entrega</span>
+                    <span id="delivery-fee">R$ 0.00</span>
+                </div>
+                <div class="total-line grand-total">
+                    <span>Total</span>
+                    <span id="grand-total">R$ {{ items_total|floatformat:2 }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const zonesData = {{ zones_data_json|safe }};
+        const subtotal = parseFloat('{{ items_total }}');
+        const deliveryZoneSelect = document.getElementById('id_delivery_zone');
+        const deliveryFeeEl = document.getElementById('delivery-fee');
+        const grandTotalEl = document.getElementById('grand-total');
+        const paymentMethodSelect = document.getElementById('id_payment_method');
+        const changeForGroup = document.getElementById('change-for-group');
+
+        deliveryZoneSelect.addEventListener('change', function() {
+            const zoneId = this.value;
+            const fee = zonesData[zoneId] || 0;
+            deliveryFeeEl.textContent = `R$ ${fee.toFixed(2)}`;
+            grandTotalEl.textContent = `R$ ${(subtotal + fee).toFixed(2)}`;
+        });
+
+        paymentMethodSelect.addEventListener('change', function() {
+            changeForGroup.style.display = this.value === 'dinheiro' ? 'block' : 'none';
+        });
+
+        // Converte o texto dos inputs para maiúsculo enquanto o usuário digita
+        const inputs = document.querySelectorAll('input[type="text"], input[type="tel"], textarea');
+        inputs.forEach(input => {
+            input.addEventListener('input', function() {
+                const start = this.selectionStart;
+                const end = this.selectionEnd;
+                this.value = this.value.toUpperCase();
+                this.setSelectionRange(start, end);
+            });
+        });
+    });
+    </script>
+</body>
+</html>

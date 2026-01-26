@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+
+{% block title %}Configurar Vitrine{% endblock %}
+
+{% block content %}
+<style>
+    .config-container {
+        max-width: 800px;
+        margin: 0 auto;
+        font-family: 'Poppins', sans-serif;
+    }
+    
+    .config-header {
+        margin-bottom: 30px;
+        border-bottom: 2px solid #f0f0f0;
+        padding-bottom: 15px;
+    }
+    
+    .config-header h2 {
+        color: #333;
+        margin: 0;
+        font-size: 1.8rem;
+    }
+    
+    .config-card {
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        padding: 30px;
+        margin-bottom: 25px;
+        border: 1px solid #eee;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 10px;
+        font-weight: 600;
+        color: #555;
+        font-size: 1.1rem;
+    }
+    
+    .radio-group {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+    }
+    
+    .radio-option {
+        position: relative;
+    }
+    
+    .radio-option input[type="radio"] {
+        display: none;
+    }
+    
+    .radio-option label {
+        display: block;
+        padding: 15px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        cursor: pointer;
+        text-align: center;
+        transition: all 0.2s ease;
+        font-weight: normal;
+        color: #666;
+        margin: 0;
+    }
+    
+    .radio-option input[type="radio"]:checked + label {
+        border-color: #007bff;
+        background-color: #f0f7ff;
+        color: #007bff;
+        font-weight: 600;
+        box-shadow: 0 2px 8px rgba(0,123,255,0.15);
+    }
+    
+    .save-btn {
+        background-color: #28a745;
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: background 0.2s;
+        display: block;
+        width: 100%;
+        margin-top: 20px;
+    }
+    
+    .save-btn:hover {
+        background-color: #218838;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(40, 167, 69, 0.2);
+    }
+</style>
+
+<div class="config-container">
+    <div class="config-header">
+        <h2>Personalizar Vitrine</h2>
+        <p style="color: #777;">Defina como seus produtos serão apresentados aos clientes.</p>
+    </div>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="config-card">
+            <div class="form-group">
+                <label for="{{ form.logo.id_for_label }}">Logo da Loja</label>
+                <p style="font-size: 0.9rem; color: #888; margin-bottom: 10px;">Faça upload da sua marca para aparecer no topo da vitrine.</p>
+                {{ form.logo }}
+                {% if tenant.logo %}
+                    <div style="margin-top: 10px;">
+                        <img src="{{ tenant.logo.url }}" alt="Logo Atual" style="max-height: 80px; border: 1px solid #ddd; padding: 5px; border-radius: 4px;">
+                        <p style="font-size: 0.8rem; color: #666; margin: 5px 0;">Logo atual</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="config-card">
+            <div class="form-group">
+                <label for="{{ form.whatsapp_number.id_for_label }}">WhatsApp para Contato</label>
+                <p style="font-size: 0.9rem; color: #888; margin-bottom: 10px;">Seus clientes poderão clicar para falar direto com você.</p>
+                {{ form.whatsapp_number }}
+            </div>
+
+            <div class="form-group" style="margin-top: 20px;">
+                <label for="{{ form.promotion_category.id_for_label }}">Categoria de Promoção (Destaque)</label>
+                <p style="font-size: 0.9rem; color: #888; margin-bottom: 10px;">Escolha uma categoria para destacar como "Promoções" na sua loja.</p>
+                {{ form.promotion_category }}
+            </div>
+        </div>
+        
+        <div class="config-card">
+            <div class="form-group">
+                <label>Ordenação Padrão dos Produtos</label>
+                <p style="font-size: 0.9rem; color: #888; margin-bottom: 15px;">Escolha qual critério será usado para listar seus produtos na página inicial da loja.</p>
+                
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" id="sort_category" name="display_order" value="category" {% if tenant.display_order == 'category' or not tenant.display_order %}checked{% endif %}>
+                        <label for="sort_category">📂 Padrão (Por Categoria)</label>
+                    </div>
+                    
+                    <div class="radio-option">
+                        <input type="radio" id="sort_price_asc" name="display_order" value="price_asc" {% if tenant.display_order == 'price_asc' %}checked{% endif %}>
+                        <label for="sort_price_asc">💲 Menor Preço</label>
+                    </div>
+
+                    <div class="radio-option">
+                        <input type="radio" id="sort_price_desc" name="display_order" value="price_desc" {% if tenant.display_order == 'price_desc' %}checked{% endif %}>
+                        <label for="sort_price_desc">💰 Maior Preço</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="save-btn">Salvar Configurações</button>
+    </form>
+</div>
+{% endblock %}

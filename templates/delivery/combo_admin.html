@@ -1,0 +1,221 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin de Combos{% endblock %}
+
+{% block content %}
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+    .admin-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        margin-top: 20px;
+    }
+    .admin-card {
+        background-color: #fff;
+        padding: 25px;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        transition: transform 0.2s;
+    }
+    .admin-card h3 {
+        margin-top: 0;
+        border-bottom: 2px solid #eee;
+        padding-bottom: 10px;
+        color: #333;
+    }
+    .form-group, form p { margin-bottom: 15px; }
+    .form-group label, form p label { display: block; margin-bottom: 5px; font-weight: 600; color: #555; }
+    .form-group input, .form-group select, .form-group textarea,
+    form p input, form p select, form p textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        box-sizing: border-box;
+        font-size: 0.95rem;
+        background-color: #f9f9f9;
+        transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus,
+    form p input:focus, form p select:focus, form p textarea:focus {
+        border-color: #007bff;
+        background-color: #fff;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+    }
+    .save-btn-icon {
+        background-color: #28a745;
+        color: white;
+        width: 50px;
+        height: 50px;
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 15px;
+        margin-left: auto;
+        transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .save-btn-icon:hover { background-color: #218838; transform: scale(1.1); box-shadow: 0 6px 8px rgba(0,0,0,0.15); }
+    .save-btn-icon .material-icons { font-size: 24px; }
+
+    .item-list {
+        list-style: none;
+        padding: 0;
+    }
+    .item-list li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    .add-row {
+        display: inline-block;
+        padding: 8px 12px;
+        background-color: #28a745;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        margin-top: 10px;
+        font-size: 0.9rem;
+        border: none;
+        cursor: pointer;
+    }
+    .slot-form {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+    .slot-form select {
+        flex-grow: 1;
+    }
+    .slot-form .delete-checkbox label {
+        font-size: 0.8rem;
+        color: #dc3545;
+    }
+    @media (max-width: 992px) {
+        .admin-grid {
+            grid-template-columns: 1fr;
+        }
+        .admin-card {
+            padding: 20px;
+        }
+    }
+</style>
+
+<h2>Administração de Combos</h2>
+
+<div class="admin-grid">
+    
+    <div class="admin-card" id="combo-form-card">
+        <h3>Criar Novo Combo</h3>
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+
+            <hr>
+            <h4>Opções do Combo (Pizzas, Bebidas, etc.)</h4>
+            <p style="font-size: 0.9rem; color: #666;">Adicione as categorias de itens que o cliente poderá escolher neste combo. Ex: 2 campos de "Pizza Salgada" e 1 de "Refrigerante".</p>
+            
+            <div id="slot-forms-container">
+                {{ formset.management_form }}
+                {% for slot_form in formset %}
+                    <div class="slot-form" id="slot-{{ forloop.counter0 }}">
+                        {{ slot_form.id }}
+                        {{ slot_form.allowed_category }}
+                        {% if slot_form.instance.pk %}{{ slot_form.DELETE }}{% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <a href="#" id="add-slot-form" class="add-row">Adicionar Opção</a>
+
+            <button type="submit" class="save-btn-icon" title="Salvar Combo"><span class="material-icons">save</span></button>
+        </form>
+    </div>
+
+    <div class="admin-card">
+        <h3>Combos Cadastrados</h3>
+        <ul class="item-list">
+            {% for combo in combos %}
+                <li>
+                    <div>
+                        <strong>{{ combo.name }}</strong>
+                        {% if combo.is_available %}
+                            <span style="font-size: 0.8rem; background-color: #d4edda; color: #155724; padding: 2px 6px; border-radius: 4px; margin-left: 5px;">Ativo</span>
+                        {% else %}
+                            <span style="font-size: 0.8rem; background-color: #e2e6ea; color: #6c757d; padding: 2px 6px; border-radius: 4px; margin-left: 5px;">Pausado</span>
+                        {% endif %}
+                        - R$ {{ combo.price|floatformat:2 }}
+                        <br>
+                        <small style="color: #666;">
+                            Opções: 
+                            {% for slot in combo.slots.all %}
+                                {% if slot.allowed_category %}
+                                    {{ slot.allowed_category.name }}
+                                {% else %}
+                                    <span style="color: red;">(Categoria inválida)</span>
+                                {% endif %}
+                                {% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                        </small>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <form method="post" action="{% url 'delivery:toggle_combo' combo.id %}">
+                            {% csrf_token %}
+                            {% if combo.is_available %}
+                                <button type="submit" class="add-row" style="background-color: #ffc107; color: #333; border: none; cursor: pointer;">Pausar</button>
+                            {% else %}
+                                <button type="submit" class="add-row" style="background-color: #28a745; border: none; cursor: pointer;">Ativar</button>
+                            {% endif %}
+                        </form>
+                        <form method="post" action="{% url 'delivery:delete_combo' combo.id %}" onsubmit="return confirm('Tem certeza que deseja excluir este combo?');">
+                            {% csrf_token %}
+                            <button type="submit" class="add-row" style="background-color: #dc3545; border: none; cursor: pointer;">Excluir</button>
+                        </form>
+                    </div>
+                </li>
+            {% empty %}
+                <li>Nenhum combo cadastrado.</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
+<div id="empty-form" style="display: none;">
+    <div class="slot-form" id="slot-__prefix__">
+        {{ formset.empty_form.allowed_category }}
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const addFormButton = document.getElementById('add-slot-form');
+    const formsContainer = document.getElementById('slot-forms-container');
+    const emptyForm = document.getElementById('empty-form').innerHTML;
+    const totalForms = document.getElementById('id_slots-TOTAL_FORMS');
+    let formNum = {{ formset.total_form_count }};
+
+    addFormButton.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        let newForm = emptyForm.replace(/__prefix__/g, formNum);
+        let formElement = document.createElement('div');
+        formElement.innerHTML = newForm;
+        
+        formsContainer.append(formElement.firstElementChild);
+        
+        totalForms.value = parseInt(totalForms.value) + 1;
+        formNum++;
+    });
+});
+</script>
+
+{% endblock %}

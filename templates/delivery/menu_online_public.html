@@ -1,0 +1,88 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cardápio Online - {{ tenant.name }}</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #4c1d95 0%, #7c3aed 100%);
+            color: #fff;
+            text-align: center;
+            padding: 40px 20px;
+        }
+        .header h1 { margin: 0; font-size: 2.5rem; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+        .header p { margin: 10px 0 0; opacity: 0.9; }
+        .images-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding: 40px;
+        }
+        .image-card {
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        .image-card:hover { transform: translateY(-5px); }
+        .image-card img {
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+            display: block;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            color: #666;
+        }
+        @media (max-width: 768px) {
+            .images-grid { grid-template-columns: 1fr; padding: 20px; }
+            .header { padding: 20px; }
+            .header h1 { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>{{ tenant.name }}</h1>
+            <p>Confira nosso cardápio</p>
+        </div>
+        {% if images %}
+            <div class="images-grid">
+                {% for image in images %}
+                    <div class="image-card">
+                        <img src="{{ image.image.url }}" alt="Item do cardápio">
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div style="text-align: center; padding: 40px; color: #666;">
+                <p>Nenhuma imagem do cardápio disponível no momento.</p>
+            </div>
+        {% endif %}
+        <div class="footer">
+            <p>© {{ tenant.name }} - Cardápio Online</p>
+        </div>
+    </div>
+</body>
+</html>

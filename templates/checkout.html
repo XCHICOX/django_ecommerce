@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finalizar Compra</title>
+<style>
+    body {
+        font-family: sans-serif;
+        margin: 0;
+        background-color: #f9f9f9;
+    }
+    .checkout-container {
+        max-width: 600px;
+        margin: 40px auto;
+        padding: 30px;
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        font-family: sans-serif;
+    }
+    .checkout-container h2 {
+        color: #333;
+        border-bottom: 2px solid #f0f0f0;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+    }
+    .summary-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        color: #555;
+    }
+    .summary-total {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #333;
+        margin-top: 20px;
+        border-top: 1px solid #ddd;
+    }
+    .payment-options {
+        margin-top: 30px;
+    }
+    .payment-options h3 {
+        font-size: 1.2rem;
+        margin-bottom: 20px;
+    }
+    .buy-button {
+        display: block;
+        width: 100%;
+        padding: 15px;
+        margin-top: 10px;
+        color: white;
+        text-align: center;
+        text-decoration: none;
+        font-size: 1.2rem;
+        font-weight: bold;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    .mp-button { background-color: #009ee3; }
+    .mp-button:hover { background-color: #0089c4; }
+    .ps-button { background-color: #ffc800; color: #000; }
+    .ps-button:hover { background-color: #e6b400; }
+</style>
+</head>
+<body>
+
+<div class="checkout-container">
+    <h2>Resumo da Compra</h2>
+
+    {% for item in cart.items.all %}
+    <div class="summary-item">
+        <span>{{ item.quantity }}x {{ item.product.name }}</span>
+        <span>R$ {{ item.subtotal|floatformat:2 }}</span>
+    </div>
+    {% endfor %}
+
+    <div class="summary-item summary-total">
+        <span>Total</span>
+        <span>R$ {{ cart.total|floatformat:2 }}</span>
+    </div>
+
+    <div class="payment-options">
+        <h3>Escolha como pagar</h3>
+        <p>Você está comprando de <strong>{{ tenant.name }}</strong>.</p>
+
+        {% if tenant.mercadopago_api_key %}
+        <form action="{% url 'shop:create_cart_payment' gateway='mercadopago' %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="buy-button mp-button">Pagar com Mercado Pago</button>
+        </form>
+        {% endif %}
+
+        {% if tenant.pagseguro_api_key %}
+        <form action="{% url 'shop:create_cart_payment' gateway='pagseguro' %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="buy-button ps-button">Pagar com PagSeguro</button>
+        </form>
+        {% endif %}
+
+        {% if tenant.whatsapp_number %}
+        <div style="margin-top: 40px; border-top: 1px solid #eee; padding-top: 20px;">
+            <p style="color: #666; font-size: 0.95rem; margin-bottom: 10px;">
+                <strong>Aviso:</strong> Após finalizar o pagamento, clique abaixo para enviar o número do pedido para nosso WhatsApp e agilizar a liberação.
+            </p>
+            <a href="https://wa.me/55{{ tenant.whatsapp_number|cut:' '|cut:'-'|cut:'('|cut:')' }}?text=Olá! Realizei o pagamento do carrinho de número {{ cart.id }} na loja {{ tenant.name }}. Gostaria de confirmar." target="_blank" class="buy-button" style="background-color: #25D366;">
+                Confirmar Pagamento no WhatsApp 💬
+            </a>
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+</body>
+</html>

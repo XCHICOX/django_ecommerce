@@ -1,0 +1,477 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}">
+    <title>Cardápio - {{ tenant.name }}</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+        body { font-family: 'Poppins', sans-serif; margin: 0; background-color: #f8f9fa; color: #333; }
+        .header { background-color: #fff; padding: 20px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .header img { max-height: 200px; margin-bottom: 10px; }
+        .container { max-width: 900px; margin: 40px auto; padding: 0 20px; }
+        .section-title { font-size: 2rem; font-weight: 700; color: #c9302c; border-bottom: 3px solid #c9302c; padding-bottom: 10px; margin-bottom: 30px; }
+        .item-card { display: flex; gap: 20px; background-color: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 20px; overflow: hidden; transition: transform 0.2s; }
+        .item-card:hover { transform: translateY(-3px); }
+        .item-card img { width: 120px; height: 120px; object-fit: cover; }
+        .item-info { padding: 15px; flex-grow: 1; display: flex; flex-direction: column; }
+        .item-info h4 { margin: 0 0 5px 0; font-size: 1.2rem; }
+        .item-info p { margin: 0 0 10px 0; color: #666; font-size: 0.9rem; }
+        .item-actions { margin-top: auto; display: flex; justify-content: space-between; align-items: center; }
+        .item-price { font-size: 1.3rem; font-weight: 700; color: #28a745; }
+        .add-to-cart-btn { background-color: #c9302c; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: 600; }
+        .category-title { font-size: 1.8rem; font-weight: 600; margin-top: 50px; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .footer { text-align: center; padding: 40px 20px; background-color: #333; color: #ccc; margin-top: 60px; }
+        .whatsapp-btn { display: inline-block; background-color: #25D366; color: white; padding: 12px 25px; border-radius: 50px; text-decoration: none; font-weight: 700; font-size: 1.1rem; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4); }
+        .floating-cart { position: fixed; bottom: 20px; right: 20px; background-color: #c9302c; color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; justify-content: center; align-items: center; text-decoration: none; font-size: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1000; }
+        .floating-cart span { font-size: 1rem; position: absolute; top: 5px; right: 10px; background: white; color: #c9302c; border-radius: 50%; width: 20px; height: 20px; display: flex; justify-content: center; align-items: center; font-weight: bold; }
+
+        @media (max-width: 600px) {
+            /* Default mobile: stack itens (used by combos) */
+            .item-card { flex-direction: column; }
+            .item-card img { width: 100%; height: 180px; }
+
+            /* Mantém os combos com foto grande e em coluna */
+            #combos .item-card { flex-direction: column; }
+            #combos .item-card img { width: 100%; height: 180px; }
+
+            /* Para as demais seções do cardápio, exibir a foto pequena à esquerda do nome */
+            .menu-section:not(#combos) .item-card { flex-direction: row; align-items: center; }
+            .menu-section:not(#combos) .item-card img { width: 56px; height: 56px; object-fit: cover; margin: 0 12px 0 0; border-radius: 6px; }
+            .menu-section:not(#combos) .item-card .item-info { padding: 10px; }
+            .menu-section:not(#combos) .item-card .item-info h4 { font-size: 1rem; }
+            .menu-section:not(#combos) .item-card .item-info p { display: none; }
+        }
+        
+        /* Estilos da Busca de Pedidos */
+        .order-history-section { background: #fff; padding: 20px; border-radius: 8px; margin-bottom: 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .search-box { display: flex; gap: 10px; margin-bottom: 15px; }
+        .search-box input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+        .search-btn { background-color: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+        .history-list { list-style: none; padding: 0; }
+        .history-item { border-bottom: 1px solid #eee; padding: 10px 0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .history-info { flex: 1; }
+        .history-date { font-size: 0.85rem; color: #888; }
+        .history-desc { font-weight: 600; font-size: 0.95rem; margin: 5px 0; }
+        .history-total { color: #28a745; font-weight: bold; }
+        .repeat-btn { background-color: #28a745; color: white; text-decoration: none; padding: 8px 15px; border-radius: 5px; font-size: 0.9rem; white-space: nowrap; }
+        .repeat-btn:hover { opacity: 0.9; }
+
+        /* Estilos do Modal de Combo */
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
+        .modal-content { background-color: #fff; padding: 25px; border-radius: 8px; width: 90%; max-width: 500px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); animation: slideDown 0.3s ease-out; }
+        @keyframes slideDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px; }
+        .modal-header h3 { margin: 0; color: #333; }
+        .close-modal { font-size: 1.5rem; cursor: pointer; color: #aaa; }
+        .close-modal:hover { color: #333; }
+        .combo-select-group { margin-bottom: 15px; }
+        .combo-select-group label { display: block; margin-bottom: 5px; font-weight: 600; color: #555; }
+        .combo-select-group select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; background-color: #fff; }
+
+        /* Estilos da Navegação por Categorias */
+        .category-nav {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* 2 colunas no mobile */
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+        @media (min-width: 600px) {
+            .category-nav { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+        }
+        .cat-btn {
+            padding: 12px 5px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #555;
+            transition: all 0.2s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .cat-btn:hover { background-color: #f8f9fa; transform: translateY(-1px); }
+        .cat-btn.active {
+            background-color: #c9302c;
+            color: white;
+            border-color: #c9302c;
+            box-shadow: 0 4px 8px rgba(201, 48, 44, 0.3);
+        }
+        .menu-section { display: none; animation: fadeIn 0.4s ease; }
+        .menu-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    <header class="header">
+        {% if tenant.logo %}
+            <img src="{{ tenant.logo.url }}" alt="{{ tenant.name }}">
+        {% endif %}
+        <h1>{{ tenant.name }}</h1>
+    </header>
+
+    {% if not tenant.is_open %}
+    <div style="background-color: #dc3545; color: white; padding: 15px; text-align: center; position: sticky; top: 0; z-index: 1001; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
+        <h3 style="margin: 0;">🔴 Loja Fechada</h3>
+        <p style="margin: 5px 0 0 0;">No momento não estamos aceitando novos pedidos.</p>
+    </div>
+    <style>
+        .add-to-cart-btn { display: none !important; }
+        .floating-cart { display: none !important; }
+    </style>
+    {% endif %}
+
+    <div class="container">
+        <!-- Busca de Pedidos Anteriores -->
+        <div class="order-history-section">
+            <h3 style="margin-top: 0;">Já pediu aqui?</h3>
+            <p style="font-size: 0.9rem; color: #666; margin-bottom: 10px;">Digite seu WhatsApp para ver seus últimos pedidos e pedir novamente.</p>
+            <div class="search-box">
+                <input type="tel" id="phoneSearch" placeholder="Seu WhatsApp (ex: 11999999999)">
+                <button class="search-btn" id="btnSearchOrders">Buscar</button>
+            </div>
+            <ul id="ordersHistoryList" class="history-list"></ul>
+        </div>
+
+        <!-- Navegação de Categorias -->
+        {% regroup menu_items by category as category_list %}
+        
+        <div class="category-nav">
+            {% if combos %}
+                <button class="cat-btn active" onclick="filterMenu('combos', this)">🔥 Combos</button>
+            {% endif %}
+            
+            {% for category in category_list %}
+                <button class="cat-btn {% if not combos and forloop.first %}active{% endif %}" onclick="filterMenu('cat-{{ category.grouper.id }}', this)">
+                    {{ category.grouper.name }}
+                </button>
+            {% endfor %}
+        </div>
+
+        <!-- Conteúdo do Cardápio -->
+        {% if combos %}
+            <div id="combos" class="menu-section active">
+                <h2 class="section-title">Nossos Combos</h2>
+                {% for combo in combos %}
+                    <div class="item-card">
+                        {% if combo.image %}
+                            <img src="{{ combo.image.url }}" alt="{{ combo.name }}">
+                        {% endif %}
+                        <div class="item-info">
+                            <h4>{{ combo.name }}</h4>
+                            <p>{{ combo.description|linebreaksbr }}</p>
+                            <div class="item-actions">
+                                <div class="item-price">R$ {{ combo.price|floatformat:2 }}</div>
+                                <button class="add-to-cart-btn" data-item-id="{{ combo.id }}" data-item-type="combo">Adicionar</button>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% for category in category_list %}
+            <div id="cat-{{ category.grouper.id }}" class="menu-section {% if not combos and forloop.first %}active{% endif %}">
+                <h3 class="category-title">{{ category.grouper.name }}</h3>
+                {% for item in category.list %}
+                <div class="item-card">
+                    {% if item.image %}
+                        <img src="{{ item.image.url }}" alt="{{ item.name }}">
+                    {% endif %}
+                    <div class="item-info">
+                        <h4>{{ item.name }}</h4>
+                        <p>{{ item.description|linebreaksbr }}</p>
+                        <div class="item-actions">
+                            <div class="item-price">R$ {{ item.price|floatformat:2 }}</div>
+                            <button class="add-to-cart-btn" data-item-id="{{ item.id }}" data-item-type="item">Adicionar</button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+
+        {% if not menu_items and not combos %}
+            <p style="text-align: center; margin-top: 40px;">Nenhum item no cardápio no momento.</p>
+        {% endif %}
+    </div>
+
+    <footer class="footer">
+        {% if tenant.whatsapp_number %}
+            <a href="https://wa.me/55{{ tenant.whatsapp_number|cut:' '|cut:'-'|cut:'('|cut:')' }}?text=Olá! Gostaria de fazer um pedido." target="_blank" class="whatsapp-btn">
+                Fazer Pedido pelo WhatsApp 💬
+            </a>
+        {% endif %}
+        <p style="margin-top: 30px;">&copy; {% now "Y" %} {{ tenant.name }}. Todos os direitos reservados.</p>
+    </footer>
+
+    <a href="{% url 'delivery:checkout' tenant_slug=tenant.slug %}" class="floating-cart">
+        🛒
+        <span id="cart-count">{{ cart_total_items|default:0 }}</span>
+    </a>
+
+    <!-- Modal de Seleção de Combo -->
+    <div id="comboModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Personalize seu Combo</h3>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div id="modalBody">
+                <!-- Selects serão inseridos aqui via JS -->
+            </div>
+            <div class="modal-footer">
+                <button id="confirmComboBtn" class="add-to-cart-btn" style="width: 100%; margin-top: 15px;">Adicionar ao Carrinho</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Opcionais para Itens Normais -->
+    <div id="itemModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="itemModalTitle">Adicionar Opcionais</h3>
+                <span class="close-modal" id="closeItemModal">&times;</span>
+            </div>
+            <div id="itemModalBody">
+                <!-- Checkboxes inseridos via JS -->
+            </div>
+            <div class="modal-footer">
+                <button id="confirmItemBtn" class="add-to-cart-btn" style="width: 100%; margin-top: 15px;">Adicionar ao Carrinho</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const addToCartButtons = document.querySelectorAll('.add-to-cart-btn');
+        const cartCount = document.getElementById('cart-count');
+        const url = "{% url 'delivery:add_to_cart' tenant_slug=tenant.slug %}";
+        const csrfToken = "{{ csrf_token }}";
+
+        // Lógica de Busca de Pedidos
+        const btnSearch = document.getElementById('btnSearchOrders');
+        const inputPhone = document.getElementById('phoneSearch');
+        const listHistory = document.getElementById('ordersHistoryList');
+        const searchUrl = "{% url 'delivery:get_customer_orders' tenant_slug=tenant.slug %}";
+
+        btnSearch.addEventListener('click', function() {
+            const phone = inputPhone.value.trim();
+            if (!phone) return alert('Digite seu telefone');
+
+            fetch(`${searchUrl}?phone=${phone}`)
+            .then(response => response.json())
+            .then(data => {
+                listHistory.innerHTML = '';
+                if (data.status === 'ok' && data.orders.length > 0) {
+                    data.orders.forEach(order => {
+                        const li = document.createElement('li');
+                        li.className = 'history-item';
+                        // URL para repetir o pedido
+                        const repeatUrl = "{% url 'delivery:repeat_order' tenant_slug=tenant.slug order_id=123456789 %}".replace('123456789', order.id);
+                        
+                        li.innerHTML = `
+                            <div class="history-info">
+                                <div class="history-date">${order.date} - ${order.status}</div>
+                                <div class="history-desc">${order.items}</div>
+                                <div class="history-total">Total: R$ ${order.total.toFixed(2)}</div>
+                            </div>
+                            <a href="${repeatUrl}" class="repeat-btn">Pedir Novamente 🔄</a>
+                        `;
+                        listHistory.appendChild(li);
+                    });
+                } else {
+                    listHistory.innerHTML = '<li style="padding:10px; color:#666;">Nenhum pedido encontrado para este número.</li>';
+                }
+            });
+        });
+        
+        // Dados carregados do backend
+        const combosData = {{ combos_json|safe }};
+        const menuItemsData = {{ menu_items_json|safe }};
+        const optionalsData = {{ optionals_json|safe }};
+
+        // Elementos do Modal
+        const modal = document.getElementById('comboModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalBody = document.getElementById('modalBody');
+        const confirmBtn = document.getElementById('confirmComboBtn');
+        const closeModal = document.querySelector('.close-modal');
+        let currentComboId = null;
+
+        // Elementos do Modal de Item
+        const itemModal = document.getElementById('itemModal');
+        const itemModalTitle = document.getElementById('itemModalTitle');
+        const itemModalBody = document.getElementById('itemModalBody');
+        const confirmItemBtn = document.getElementById('confirmItemBtn');
+        const closeItemModal = document.getElementById('closeItemModal');
+        let currentItemId = null;
+
+        addToCartButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                if (this.id === 'confirmComboBtn' || this.id === 'confirmItemBtn') return;
+
+                const itemId = this.dataset.itemId;
+                const itemType = this.dataset.itemType;
+
+                if (itemType === 'combo') {
+                    openComboModal(itemId);
+                } else {
+                    // Verifica se o item tem opcionais disponíveis para sua categoria
+                    const item = menuItemsData.find(i => i.id == itemId);
+                    const itemOptionals = optionalsData.filter(opt => opt.category_id == item.category_id);
+                    
+                    if (itemOptionals.length > 0) {
+                        openItemModal(item, itemOptionals);
+                    } else {
+                        addToCart(itemId, itemType);
+                    }
+                }
+            });
+        });
+
+        function openComboModal(comboId) {
+            const combo = combosData.find(c => c.id == comboId);
+            if (!combo) return;
+
+            currentComboId = comboId;
+            modalTitle.textContent = combo.name;
+            modalBody.innerHTML = '';
+
+            // Cria um select para cada slot configurado no admin
+            combo.slots.forEach((slot, index) => {
+                const group = document.createElement('div');
+                group.className = 'combo-select-group';
+
+                const label = document.createElement('label');
+                label.textContent = `Escolha: ${slot.allowed_category.name}`;
+                
+                const select = document.createElement('select');
+                select.className = 'combo-select';
+                
+                // Filtra itens que pertencem à categoria permitida
+                const items = menuItemsData.filter(item => item.category_id == slot.allowed_category.id);
+                
+                if (items.length === 0) {
+                    const option = document.createElement('option');
+                    option.text = "Indisponível";
+                    select.disabled = true;
+                    select.add(option);
+                } else {
+                    items.forEach(item => {
+                        const option = document.createElement('option');
+                        option.value = item.id;
+                        option.text = item.name;
+                        select.add(option);
+                    });
+                }
+
+                group.appendChild(label);
+                group.appendChild(select);
+                modalBody.appendChild(group);
+            });
+
+            modal.style.display = 'flex';
+        }
+
+        function openItemModal(item, optionals) {
+            currentItemId = item.id;
+            itemModalTitle.textContent = item.name;
+            itemModalBody.innerHTML = `
+    <p>Escolha os adicionais (opcional).</p>
+    <p>Caso não queira nenhum adicional, clique diretamente em <strong>Adicionar ao carrinho</strong>.</p>
+`;
+
+
+            optionals.forEach(opt => {
+                const div = document.createElement('div');
+                div.style.marginBottom = '10px';
+                div.innerHTML = `
+                    <label style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
+                        <span>
+                            <input type="checkbox" class="optional-check" value="${opt.id}"> 
+                            ${opt.name}
+                        </span>
+                        <strong>+ R$ ${parseFloat(opt.price).toFixed(2)}</strong>
+                    </label>
+                `;
+                itemModalBody.appendChild(div);
+            });
+
+            itemModal.style.display = 'flex';
+        }
+
+        // Fechar modal
+        closeModal.onclick = () => modal.style.display = 'none';
+        closeItemModal.onclick = () => itemModal.style.display = 'none';
+        window.onclick = (e) => { if (e.target == modal) modal.style.display = 'none'; };
+
+        // Confirmar seleção do combo
+        confirmBtn.onclick = () => {
+            const selects = document.querySelectorAll('.combo-select');
+            let choices = [];
+            
+            selects.forEach(select => {
+                if (!select.disabled) {
+                    choices.push(select.value);
+                }
+            });
+
+            // Monta a chave: combo_ID_Opcao1_Opcao2
+            const itemKey = `combo_${currentComboId}_${choices.join('_')}`;
+            
+            addToCart(null, null, itemKey);
+            modal.style.display = 'none';
+        };
+
+        // Confirmar seleção de Item com Opcionais
+        confirmItemBtn.onclick = () => {
+            const checks = document.querySelectorAll('.optional-check:checked');
+            let choices = [];
+            checks.forEach(c => choices.push(c.value));
+
+            // Monta chave: item_ID_Opt1_Opt2
+            let itemKey = `item_${currentItemId}`;
+            if (choices.length > 0) {
+                itemKey += `_${choices.join('_')}`;
+            }
+
+            addToCart(null, null, itemKey);
+            itemModal.style.display = 'none';
+        };
+
+        function addToCart(itemId, itemType, itemKey=null) {
+            const payload = itemKey ? { item_key: itemKey } : { item_id: itemId, item_type: itemType };
+
+            fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+                body: JSON.stringify(payload)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'ok') {
+                    cartCount.textContent = data.cart_total_items;
+                    // Animação simples no carrinho
+                    cartCount.parentElement.style.transform = 'scale(1.2)';
+                    setTimeout(() => cartCount.parentElement.style.transform = 'scale(1)', 200);
+                }
+            });
+        }
+
+        // Função de Filtro do Menu
+        window.filterMenu = function(sectionId, btn) {
+            document.querySelectorAll('.menu-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.cat-btn').forEach(el => el.classList.remove('active'));
+            
+            const section = document.getElementById(sectionId);
+            if (section) section.classList.add('active');
+            
+            if (btn) btn.classList.add('active');
+        };
+    });
+    </script>
+</body>
+</html>

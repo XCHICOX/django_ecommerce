@@ -1,0 +1,58 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}">
+    <title>Pedido Confirmado!</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+        body { font-family: 'Poppins', sans-serif; margin: 0; background-color: #f8f9fa; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        .container { max-width: 600px; width: 100%; background-color: #fff; padding: 40px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); text-align: center; }
+        h1 { color: #28a745; font-size: 2rem; }
+        .order-summary { text-align: left; margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px; }
+        .order-summary p { margin: 8px 0; color: #555; }
+        .order-summary ul { list-style: none; padding: 0; margin-top: 5px; }
+        .order-summary li { margin-bottom: 5px; }
+        .total { font-size: 1.2rem; font-weight: bold; margin-top: 15px; }
+        .whatsapp-btn { display: inline-block; margin-top: 30px; background-color: #25D366; color: white; padding: 12px 25px; border-radius: 50px; text-decoration: none; font-weight: 700; font-size: 1.1rem; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎉 Pedido Recebido!</h1>
+        <p>Obrigado, {{ order.customer_name }}. Seu pedido foi enviado para a loja. Em breve, entraremos em contato!</p>
+
+        <div class="order-summary">
+            <h3>Resumo do Pedido</h3>
+            <p><strong>Número do Pedido:</strong> #{{ order.id }}</p>
+            <p><strong>Telefone:</strong> {{ order.customer_whatsapp }}</p>
+            <p><strong>Endereço:</strong> {{ order.delivery_address }}</p>
+            <p><strong>Bairro:</strong> {{ order.delivery_zone.neighborhood }}</p>
+            
+            <p><strong>Itens do Pedido:</strong></p>
+            <ul>
+                {% for item in order.items.all %}
+                    <li>{{ item.quantity }}x {{ item.item_name }}</li>
+                {% endfor %}
+            </ul>
+
+            <p class="total">Taxa de Entrega: R$ {{ order.delivery_fee|floatformat:2 }}</p>
+            <p class="total">Total do Pedido: R$ {{ order.final_total|floatformat:2 }}</p>
+
+            <p style="margin-top: 20px;"><strong>Detalhes do Pagamento:</strong></p>
+            <p>Método de Pagamento: {{ order.get_payment_method_display }}</p>
+            {% if order.payment_method == 'dinheiro' and order.change_for %}
+                <p>Troco para: R$ {{ order.change_for|floatformat:2 }}</p>
+            {% endif %}
+        </div>
+
+        {% if order.tenant.whatsapp_number %}
+            <a href="https://wa.me/55{{ order.tenant.whatsapp_number|cut:' '|cut:'-'|cut:'('|cut:')' }}?text={{ whatsapp_message }}" target="_blank" class="whatsapp-btn">
+                Acompanhe seu pedido pelo WhatsApp
+            </a>
+        {% endif %}
+    </div>
+</body>
+</html>

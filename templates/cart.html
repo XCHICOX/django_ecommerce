@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seu Carrinho de Compras</title>
+<style>
+    body {
+        font-family: sans-serif;
+        margin: 0;
+        background-color: #f9f9f9;
+    }
+    .cart-container {
+        max-width: 900px;
+        margin: 40px auto;
+        padding: 20px;
+        font-family: sans-serif;
+    }
+    .cart-container h2 {
+        color: #333;
+        border-bottom: 2px solid #f0f0f0;
+        padding-bottom: 10px;
+        margin-bottom: 30px;
+    }
+    .cart-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 30px;
+    }
+    .cart-table th, .cart-table td {
+        padding: 15px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+        vertical-align: middle;
+    }
+    .cart-table th {
+        background-color: #f8f8f8;
+        font-weight: 600;
+    }
+    .product-info {
+        display: flex;
+        align-items: center;
+    }
+    .quantity-form {
+        display: flex;
+        align-items: center;
+    }
+    .quantity-form input {
+        width: 60px;
+        text-align: center;
+        margin-right: 10px;
+    }
+    .product-info img {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 4px;
+        margin-right: 15px;
+    }
+    .cart-summary {
+        text-align: right;
+    }
+    .cart-summary h3 {
+        font-size: 1.5rem;
+        color: #333;
+    }
+    .cart-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .btn {
+        padding: 12px 25px;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+        transition: background-color 0.2s;
+        border: none;
+        cursor: pointer;
+    }
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+    }
+    .btn-secondary:hover {
+        background-color: #5a6268;
+    }
+    .btn-primary {
+        background-color: #28a745;
+        color: white;
+    }
+    .btn-primary:hover {
+        background-color: #218838;
+    }
+    .empty-cart {
+        text-align: center;
+        padding: 50px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+    }
+</style>
+</head>
+<body>
+
+<div class="cart-container">
+    <h2>Seu Carrinho de Compras</h2>
+
+    {% if cart and cart.items.all %}
+        <table class="cart-table">
+            <thead>
+                <tr>
+                    <th>Produto</th>
+                    <th>Preço</th>
+                    <th>Quantidade</th>
+                    <th>Subtotal</th>
+                    <th>Ação</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart.items.all %}
+                <tr>
+                    <td>
+                        <div class="product-info">
+                            <img src="{{ item.product.images.all.0.image.url }}" alt="{{ item.product.name }}">
+                            <span>{{ item.product.name }}</span>
+                        </div>
+                    </td>
+                    <td>R$ {{ item.product.price|floatformat:2 }}</td>
+                    <td>
+                        <form action="{% url 'shop:update_cart_item' item.id %}" method="post" class="quantity-form">
+                            {% csrf_token %}
+                            <input type="number" name="quantity" value="{{ item.quantity }}" min="1" class="form-control form-control-sm">
+                            <button type="submit" class="btn btn-sm btn-secondary">Atualizar</button>
+                        </form>
+                    </td>
+                    <td>R$ {{ item.subtotal|floatformat:2 }}</td>
+                    <td>
+                        <form action="{% url 'shop:remove_from_cart' item.id %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-danger">Remover</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="cart-summary">
+            <h3>Total do Carrinho: R$ {{ cart.total|floatformat:2 }}</h3>
+        </div>
+
+        <div class="cart-actions">
+            {% if last_visited_tenant_slug %}
+                <a href="{% url 'vitrine' tenant_slug=last_visited_tenant_slug %}" class="btn btn-secondary">Continuar Comprando</a>
+            {% else %}
+                <a href="{% url 'index' %}" class="btn btn-secondary">Continuar Comprando</a>
+            {% endif %}
+
+            {# Este formulário levará para a página de checkout. #}
+            {# A página de checkout mostrará os botões de pagamento (Mercado Pago, etc.) #}
+            <a href="{% url 'shop:checkout' %}" class="btn btn-primary">Finalizar Compra</a>
+        </div>
+
+    {% else %}
+        <div class="empty-cart">
+            <h3>Seu carrinho está vazio.</h3>
+            <p>Adicione produtos para vê-los aqui.</p>
+            {% if last_visited_tenant_slug %}
+                <a href="{% url 'vitrine' tenant_slug=last_visited_tenant_slug %}" class="btn btn-primary" style="margin-top: 20px;">Voltar para a loja</a>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+</body>
+</html>

@@ -1,0 +1,245 @@
+{% extends 'base.html' %}
+
+{% block title %}Cadastro de Produtos{% endblock %}
+
+{% block content %}
+<style>
+    /* Estilos Gerais */
+    .product-container {
+        max-width: 900px;
+        margin: auto;
+        font-family: sans-serif;
+    }
+
+    h2 {
+        color: #333;
+        border-bottom: 2px solid #f0f0f0;
+        padding-bottom: 10px;
+    }
+
+    hr {
+        border: 0;
+        height: 1px;
+        background: #ddd;
+        margin: 40px 0;
+    }
+
+    /* Estilos do Formulário */
+    .form-container {
+        background-color: #f9f9f9;
+        padding: 25px;
+        border-radius: 8px;
+        border: 1px solid #eee;
+    }
+
+    .form-container input[type="text"],
+    .form-container input[type="number"],
+    .form-container input[type="file"],
+    .form-container textarea,
+    .form-container select {
+        width: 100%;
+        padding: 10px;
+        margin-top: 5px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+    .form-container button {
+        background-color: #28a745;
+        color: white;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        width: 100%;
+        margin-top: 20px;
+    }
+
+    .form-container button:hover {
+        background-color: #218838;
+    }
+
+    /* Estilos da Tabela */
+    .table-container {
+        overflow-x: auto; /* Garante que a tabela role em telas médias */
+    }
+
+    .product-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .product-table th, .product-table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .product-table th {
+        background-color: #f2f2f2;
+    }
+
+    .product-table img {
+        border-radius: 4px;
+    }
+
+    /* Design Responsivo para a Tabela */
+    @media screen and (max-width: 768px) {
+        .product-table thead {
+            display: none; /* Esconde o cabeçalho da tabela */
+        }
+
+        .product-table, .product-table tbody, .product-table tr, .product-table td {
+            display: block;
+            width: 100%;
+        }
+
+        .product-table tr {
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .product-table td {
+            text-align: right; /* Alinha o conteúdo à direita */
+            padding-left: 50%; /* Cria espaço para o label */
+            position: relative;
+            border-bottom: none;
+        }
+
+        .product-table td::before {
+            content: attr(data-label); /* Pega o texto do atributo data-label */
+            position: absolute;
+            left: 10px;
+            width: calc(50% - 20px);
+            text-align: left;
+            font-weight: bold;
+        }
+    }
+</style>
+
+<div class="product-container">
+    <div class="form-container">
+
+        <h2>Cadastrar Novo Produto</h2>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <p>
+                <label for="id_extra_field_codigo">Código:</label>
+                <input type="text" name="extra_field_codigo" id="id_extra_field_codigo">
+            </p>
+
+            {{ form.as_p }}
+
+            <!-- Div onde os campos dinâmicos serão inseridos -->
+            <div id="dynamic-fields-container"></div>
+
+            <h3>Imagens do Produto (até 4)</h3>
+            {{ formset.management_form }} {# Necessário para o Django gerenciar o formset #}
+            {% for image_form in formset %}
+                {{ image_form.as_p }}
+            {% endfor %}
+
+            <button type="submit">Salvar Produto</button>
+        </form>
+    </div>
+
+    <hr>
+
+    <h2>Produtos Cadastrados</h2>
+    {% if produtos %}
+    <div class="table-container">
+        <table class="product-table">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Atributos</th>
+                    <th>Imagens</th>
+                    <th>Categoria</th>
+                    <th>Preço</th>
+                    <th>Estoque</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for produto in produtos %}
+                <tr>
+                    <td data-label="Nome">{{ produto.name }}</td>
+                    <td data-label="Atributos">
+                        {% for key, value in produto.extra_data.items %}
+                            <strong>{{ key }}:</strong> {{ value }}<br>
+                        {% empty %}
+                            N/A
+                        {% endfor %}
+                    </td>
+                    <td data-label="Imagens">
+                        {% for image in produto.images.all %} {# Itera sobre as imagens relacionadas #}
+                            <img src="{{ image.image.url }}" alt="{{ produto.name }}" style="width: 50px; height: 50px; object-fit: cover; margin-right: 5px;">
+                        {% empty %} {# Se não houver imagens #}
+                            Sem Imagem
+                        {% endfor %}
+                    </td>
+                    <td data-label="Categoria">{{ produto.category.name }}</td>
+                    <td data-label="Preço">R$ {{ produto.price }}</td>
+                    <td data-label="Estoque">{{ produto.stock }}</td>
+                    <td data-label="Ações">
+                        <a href="{% url 'shop:edit_product' produto.id %}" style="text-decoration: none; color: white; background-color: #007bff; padding: 5px 10px; border-radius: 4px; font-size: 0.9rem; margin-right: 5px;">Editar</a>
+                        
+                        <form action="{% url 'shop:delete_product' produto.id %}" method="post" onsubmit="return confirm('Tem certeza que deseja excluir este produto?');" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" style="background-color: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.9rem; width: auto; margin-top: 0;">Excluir</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+        <p>Nenhum produto cadastrado ainda.</p>
+    {% endif %}
+</div>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const categorySelect = document.getElementById('id_category');
+        const dynamicFieldsContainer = document.getElementById('dynamic-fields-container');
+
+        categorySelect.addEventListener('change', function() {
+            const categoryId = this.value;
+            dynamicFieldsContainer.innerHTML = ''; // Limpa os campos antigos
+
+            if (categoryId) {
+                fetch(`/produtos/get-category-fields/${categoryId}/`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const fields = data.fields;
+                        if (fields && fields.length > 0) {
+                            fields.forEach(field => {
+                                let fieldHtml = `<p><label for="id_extra_field_${field.nome}">${field.nome}:</label><br>`;
+                                
+                                if (field.tipo === 'selecao' && field.opcoes) {
+                                    fieldHtml += `<select name="extra_field_${field.nome}" id="id_extra_field_${field.nome}" required>`;
+                                    const options = field.opcoes.split(',');
+                                    options.forEach(option => {
+                                        fieldHtml += `<option value="${option.trim()}">${option.trim()}</option>`;
+                                    });
+                                    fieldHtml += `</select>`;
+                                } else { // Padrão para 'texto'
+                                    fieldHtml += `<input type="text" name="extra_field_${field.nome}" id="id_extra_field_${field.nome}" required>`;
+                                }
+
+                                fieldHtml += `</p>`;
+                                dynamicFieldsContainer.innerHTML += fieldHtml;
+                            });
+                        }
+                    })
+                    .catch(error => console.error('Erro ao buscar campos da categoria:', error));
+            }
+        });
+    });
+    </script>
+
+{% endblock %}
