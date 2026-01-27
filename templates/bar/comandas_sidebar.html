@@ -1,0 +1,8 @@
+{% for comanda in comandas %}
+<a href="{% url 'bar:comanda' numero_mesa=comanda.numero_mesa %}" style="padding: 8px 15px; font-size: 0.85rem; background-color: #fff3cd; color: #856404; border-left: 3px solid #ffc107; display: block; margin-bottom: 5px; text-decoration: none;">
+    Mesa {{ comanda.numero_mesa }}<br>
+    <small>R$ {{ comanda.total|floatformat:2 }}</small>
+</a>
+{% empty %}
+<p style="font-size: 0.8rem; color: #6c757d; padding: 8px 15px;">Nenhuma comanda aberta</p>
+{% endfor %}

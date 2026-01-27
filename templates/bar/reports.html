@@ -1,0 +1,443 @@
+{% extends 'base.html' %}
+
+{% block title %}Relatórios - {{ tenant.name }}{% endblock %}
+
+{% block content %}
+<!-- Campo CSRF necessário para requisições AJAX -->
+{% csrf_token %}
+
+<style>
+    .reports-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .reports-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #e9ecef;
+    }
+    
+    .reports-header h1 {
+        margin: 0;
+        color: #495057;
+    }
+    
+    .comanda-card {
+        background-color: #fff;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .comanda-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .comanda-mesa {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #495057;
+    }
+    
+    .comanda-data {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+    
+    .comanda-itens {
+        margin-bottom: 15px;
+    }
+    
+    .item-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 5px 0;
+        border-bottom: 1px solid #f8f9fa;
+    }
+    
+    .item-nome {
+        flex: 1;
+        font-weight: 500;
+    }
+    
+    .item-qtd {
+        width: 60px;
+        text-align: center;
+        color: #6c757d;
+    }
+    
+    .item-preco {
+        width: 80px;
+        text-align: right;
+        color: #6c757d;
+    }
+    
+    .item-subtotal {
+        width: 80px;
+        text-align: right;
+        font-weight: 500;
+    }
+    
+    .comanda-total {
+        text-align: right;
+        font-size: 1.1rem;
+        font-weight: bold;
+        color: #28a745;
+        padding-top: 10px;
+        border-top: 2px solid #e9ecef;
+    }
+    
+    .btn-imprimir-relatorio {
+        background-color: #17a2b8;
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: background-color 0.3s;
+        pointer-events: auto !important;
+        position: relative;
+        z-index: 10;
+    }
+    
+    .btn-imprimir-relatorio:hover {
+        background-color: #138496;
+    }
+    
+    .btn-excluir-relatorio {
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: background-color 0.3s;
+        pointer-events: auto !important;
+        position: relative;
+        z-index: 10;
+    }
+    
+    .btn-excluir-relatorio:hover {
+        background-color: #c82333;
+    }
+    
+    /* Modal de senha */
+    .senha-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.8);
+        z-index: 10000 !important;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .senha-modal-content {
+        background-color: white;
+        padding: 25px;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        max-width: 400px;
+        width: 90%;
+        text-align: center;
+    }
+    
+    .senha-modal h3 {
+        margin-top: 0;
+        color: #dc3545;
+        font-size: 1.2rem;
+    }
+    
+    .senha-input {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #ddd;
+        border-radius: 4px;
+        font-size: 1rem;
+        margin: 15px 0;
+        box-sizing: border-box;
+    }
+    
+    .senha-input:focus {
+        border-color: #dc3545;
+        outline: none;
+    }
+    
+    .senha-buttons {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+    }
+    
+    .btn-modal {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: background-color 0.3s;
+    }
+    
+    .btn-confirmar {
+        background-color: #dc3545;
+        color: white;
+    }
+    
+    .btn-confirmar:hover {
+        background-color: #c82333;
+    }
+    
+    .btn-cancelar {
+        background-color: #6c757d;
+        color: white;
+    }
+    
+    .btn-cancelar:hover {
+        background-color: #545b62;
+    }
+    
+    .no-reports {
+        text-align: center;
+        padding: 50px;
+        color: #6c757d;
+        font-size: 1.1rem;
+    }
+</style>
+
+<div class="reports-container">
+    <div class="reports-header">
+        <h1>📊 Relatórios de Comandas</h1>
+        <div>
+            <small style="color: #6c757d;">Últimas 50 comandas fechadas</small>
+        </div>
+    </div>
+    
+    {% if comandas_fechadas %}
+        {% for comanda in comandas_fechadas %}
+            <div class="comanda-card">
+                <div class="comanda-header">
+                    <div class="comanda-mesa">
+                        Mesa {{ comanda.numero_mesa }}
+                    </div>
+                    <div class="comanda-data">
+                        Fechada em {{ comanda.data_fechamento|date:"d/m/Y H:i" }}
+                    </div>
+                </div>
+                
+                <div class="comanda-itens">
+                    {% for item in comanda.itens.all %}
+                        <div class="item-row">
+                            <div class="item-nome">
+                                {{ item.item.name }}
+                                {% if item.observacao %}
+                                    <br><small style="color: #6c757d;">Obs: {{ item.observacao }}</small>
+                                {% endif %}
+                            </div>
+                            <div class="item-qtd">{{ item.quantidade }}x</div>
+                            <div class="item-preco">R$ {{ item.preco_unitario|floatformat:2 }}</div>
+                            <div class="item-subtotal">R$ {{ item.subtotal|floatformat:2 }}</div>
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 10px; border-top: 2px solid #e9ecef;">
+                    <div class="comanda-total" style="margin: 0; padding-top: 0; border-top: none;">
+                        Total: R$ {{ comanda.total|floatformat:2 }}
+                        {% if comanda.gorjeta_10 %}
+                            <br><small>(Inclui 10% de taxa de serviço)</small>
+                        {% endif %}
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button onclick="imprimirComanda({{ comanda.id }})" 
+                                class="btn-imprimir-relatorio" 
+                                title="Reimprimir comanda">
+                            🖨️ Imprimir
+                        </button>
+                        <button onclick="excluirComanda({{ comanda.id }}, {{ comanda.numero_mesa }})" 
+                                class="btn-excluir-relatorio" 
+                                data-comanda-id="{{ comanda.id }}"
+                                data-numero-mesa="{{ comanda.numero_mesa }}"
+                                title="Excluir comanda">
+                            🗑️ Excluir
+                        </button>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="no-reports">
+            <p>📭 Nenhuma comanda fechada encontrada.</p>
+            <p>As comandas aparecerão aqui após serem fechadas.</p>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Modal para senha de exclusão -->
+<div id="senhaModal" class="senha-modal" style="display: none;">
+    <div class="senha-modal-content">
+        <h3>🔒 Confirmação de Exclusão</h3>
+        <p>Digite sua senha para confirmar a exclusão da comanda da <strong>Mesa <span id="modal-mesa-numero"></span></strong>:</p>
+        <input type="password" id="senhaInput" class="senha-input" placeholder="Digite sua senha">
+        <div class="senha-buttons">
+            <button class="btn-modal btn-cancelar" onclick="fecharModalSenha()">Cancelar</button>
+            <button class="btn-modal btn-confirmar" onclick="confirmarExclusao()">Confirmar Exclusão</button>
+        </div>
+    </div>
+</div>
+
+<script>
+let comandaParaExcluir = null;
+
+function imprimirComanda(comandaId) {
+    console.log('Função imprimirComanda chamada com comanda ID:', comandaId);
+    // Abrir em nova janela para impressão
+    window.open('/bar/reimprimir-comanda/' + comandaId + '/', '_blank', 'width=400,height=600');
+}
+
+function excluirComanda(comandaId, numeroMesa) {
+    try {
+        console.log('=== EXCLUIR COMANDA CHAMADA ===');
+        console.log('Comanda ID:', comandaId, 'Mesa:', numeroMesa);
+        
+        // Definir dados da comanda para exclusão
+        comandaParaExcluir = {
+            id: comandaId,
+            numeroMesa: numeroMesa
+        };
+        
+        // Atualizar modal com número da mesa
+        const mesaSpan = document.getElementById('modal-mesa-numero');
+        if (mesaSpan) {
+            mesaSpan.textContent = numeroMesa;
+        } else {
+            console.error('Elemento modal-mesa-numero não encontrado');
+        }
+        
+        // Mostrar modal
+        const modal = document.getElementById('senhaModal');
+        if (modal) {
+            modal.style.display = 'flex';
+            console.log('Modal mostrado');
+            // Focar no campo de senha
+            const senhaInput = document.getElementById('senhaInput');
+            if (senhaInput) {
+                senhaInput.focus();
+            }
+        } else {
+            alert('ERRO: Modal não encontrado!');
+            console.error('Modal senhaModal não encontrado');
+        }
+    } catch (error) {
+        console.error('Erro na função excluirComanda:', error);
+        alert('Erro ao tentar excluir comanda: ' + error.message);
+    }
+}
+
+function fecharModalSenha() {
+    document.getElementById('senhaModal').style.display = 'none';
+    comandaParaExcluir = null;
+}
+
+function confirmarExclusao() {
+    const senha = document.getElementById('senhaInput').value;
+    if (!senha) {
+        alert('Por favor, digite sua senha.');
+        document.getElementById('senhaInput').focus();
+        return;
+    }
+
+    if (!comandaParaExcluir) {
+        alert('Erro: Dados da comanda não encontrados. Por favor, recarregue a página.');
+        return;
+    }
+
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+    if (!csrfToken || !csrfToken.value) {
+        alert('Erro de segurança (CSRF). Por favor, recarregue a página.');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('senha', senha);
+
+    fetch('/bar/excluir-comanda/' + comandaParaExcluir.id + '/', {
+        method: 'POST',
+        body: formData,
+        headers: { 'X-CSRFToken': csrfToken.value }
+    })
+    .then(response => response.json().then(data => {
+        if (!response.ok) {
+            // Cria um erro para ser pego pelo .catch()
+            const error = new Error(data.error || 'Ocorreu um erro no servidor.');
+            throw error;
+        }
+        return data; // Passa os dados de sucesso para o próximo .then()
+    }))
+    .then(data => {
+        // Sucesso na exclusão
+        alert(data.message || 'Comanda excluída com sucesso!');
+        fecharModalSenha();
+        location.reload();
+    })
+    .catch(error => {
+        // Falha na exclusão (senha errada, comanda não encontrada, etc.)
+        alert(error.message); // Mostra a mensagem de erro específica vinda do servidor
+        const senhaInput = document.getElementById('senhaInput');
+        senhaInput.value = ''; // Limpa o campo de senha
+        senhaInput.focus(); // Foca no campo para o usuário tentar novamente
+    });
+}
+
+// Fechar modal ao clicar fora
+document.getElementById('senhaModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        fecharModalSenha();
+    }
+});
+
+// Fechar modal com tecla ESC
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && document.getElementById('senhaModal').style.display === 'flex') {
+        fecharModalSenha();
+    }
+    
+    // Confirmar com Enter
+    if (e.key === 'Enter' && document.getElementById('senhaModal').style.display === 'flex') {
+        confirmarExclusao();
+    }
+});
+
+// Debug: mostrar modal ao carregar página (remover depois dos testes)
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('=== PÁGINA CARREGADA ===');
+    console.log('Modal disponível:', document.getElementById('senhaModal') !== null);
+    
+    // Verificar botões
+    const botoesExcluir = document.querySelectorAll('.btn-excluir-relatorio');
+    const botoesImprimir = document.querySelectorAll('.btn-imprimir-relatorio');
+    console.log('Botões excluir encontrados:', botoesExcluir.length);
+    console.log('Botões imprimir encontrados:', botoesImprimir.length);
+});
+</script>
+{% endblock %}

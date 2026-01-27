@@ -7,7 +7,7 @@
 <style>
     .admin-grid {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr;
         gap: 30px;
         margin-top: 20px;
     }
@@ -196,33 +196,6 @@
             </ul>
         </div>
 
-        <div class="admin-card" style="margin-bottom: 30px;">
-            <h3>Adicionar Opcionais</h3>
-            <p style="font-size: 0.9rem; color: #666;">Crie opcionais (ex: Bacon Extra, Borda Recheada) e vincule a uma categoria.</p>
-            <form method="post">
-                {% csrf_token %}
-                <input type="hidden" name="form_type" value="optional">
-                {{ optional_form.as_p }}
-                <button type="submit" class="save-btn-icon" title="Salvar Opcional"><span class="material-icons">save</span></button>
-            </form>
-            <hr>
-            <h4>Opcionais Existentes</h4>
-            <ul class="item-list">
-                {% for opt in optionals %}
-                    <li>
-                        <span>{{ opt.name }} ({{ opt.category.name }}) - <strong>R$ {{ opt.price|floatformat:2 }}</strong></span>
-                        <form method="post" onsubmit="return confirm('Excluir este opcional?');" style="margin: 0;">
-                            {% csrf_token %}
-                            <input type="hidden" name="form_type" value="delete_optional">
-                            <input type="hidden" name="optional_id" value="{{ opt.id }}">
-                            <button type="submit" class="delete-icon-btn" title="Excluir"><span class="material-icons">delete</span></button>
-                        </form>
-                    </li>
-                {% empty %}
-                    <li>Nenhum opcional cadastrado.</li>
-                {% endfor %}
-            </ul>
-        </div>
     </div>
 </div>
 

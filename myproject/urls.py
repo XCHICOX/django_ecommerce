@@ -35,6 +35,8 @@ urlpatterns = [
 
     # Inclui as URLs do app 'delivery'
     path('delivery/', include('delivery.urls')),
+    # Inclui as URLs do app 'bar'
+    path('bar/', include('bar.urls')),
 ]
 
 if settings.DEBUG:

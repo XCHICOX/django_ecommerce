@@ -17,6 +17,7 @@ class Tenant(models.Model):
     BUSINESS_TYPE_CHOICES = [
         ('ecommerce', 'E-commerce (Varejo)'),
         ('delivery', 'Delivery (Restaurantes/Bebidas)'),
+        ('bar', 'Bar (Bebidas e Serviços)'),
     ]
 
     name = models.CharField(max_length=100)
@@ -33,6 +34,10 @@ class Tenant(models.Model):
     promotion_category = models.ForeignKey('Category', on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Categoria de Promoção em Destaque")
     business_type = models.CharField(max_length=20, choices=BUSINESS_TYPE_CHOICES, default='ecommerce', verbose_name="Área de Atuação")
     is_open = models.BooleanField(default=False, verbose_name="Loja Aberta")
+    
+    # Campos específicos para bar
+    numero_mesas = models.PositiveIntegerField(default=10, verbose_name="Número de Mesas", help_text="Quantidade de mesas disponíveis no bar")
+    permitir_gorjeta_10 = models.BooleanField(default=False, verbose_name="Permitir Taxa 10% Serviço", help_text="Permitir que clientes adicionem 10% de taxa de serviço opcional")
 
     def save(self, *args, **kwargs):
         """

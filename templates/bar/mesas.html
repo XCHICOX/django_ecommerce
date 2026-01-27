@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block title %}Mesas - {{ tenant.name }}{% endblock %}
+
+{% block content %}
+<style>
+    .mesas-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+    }
+    
+    .mesa-card {
+        background-color: #fff;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        padding: 20px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+    
+    .mesa-card:hover {
+        border-color: #007bff;
+        box-shadow: 0 4px 8px rgba(0,123,255,0.2);
+    }
+    
+    .mesa-card.ocupada {
+        border-color: #ffc107;
+        background-color: #fff3cd;
+    }
+    
+    .mesa-card.ocupada:hover {
+        border-color: #e0a800;
+        box-shadow: 0 4px 8px rgba(224,168,0,0.2);
+    }
+    
+    .mesa-numero {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #495057;
+        margin-bottom: 10px;
+    }
+    
+    .mesa-status {
+        font-size: 0.9rem;
+        color: #6c757d;
+        margin-bottom: 10px;
+    }
+    
+    .mesa-total {
+        font-size: 1.1rem;
+        font-weight: bold;
+        color: #28a745;
+    }
+    
+    .mesa-card.ocupada .mesa-total {
+        color: #856404;
+    }
+    
+    .mesa-itens {
+        font-size: 0.8rem;
+        color: #6c757d;
+        margin-top: 5px;
+    }
+</style>
+
+<div style="padding: 20px;">
+    <h2>Mesas - {{ tenant.name }}</h2>
+    <p>Selecione uma mesa para gerenciar os pedidos</p>
+    
+    <div class="mesas-grid">
+        {% for mesa in mesas %}
+        <div class="mesa-card {% if mesa.status == 'ocupada' %}ocupada{% endif %}" onclick="selecionarMesa({{ mesa.numero }})">
+            <div class="mesa-numero">Mesa {{ mesa.numero }}</div>
+            <div class="mesa-status">{{ mesa.status|title }}</div>
+            {% if mesa.status == 'ocupada' %}
+            <div class="mesa-itens">{{ mesa.itens_count }} itens</div>
+            {% endif %}
+            <div class="mesa-total">R$ {{ mesa.total|floatformat:2 }}</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+function selecionarMesa(numero) {
+    window.location.href = '/bar/comanda/' + numero + '/';
+}
+</script>
+{% endblock %}

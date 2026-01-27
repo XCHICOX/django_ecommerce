@@ -25,6 +25,10 @@ def inicio_view(request):
     if tenant.business_type == 'delivery':
         # Redireciona para a view dashboard dentro do app 'delivery'
         return redirect('delivery:dashboard')
+    
+    if tenant.business_type == 'bar':
+        # Redireciona para a view dashboard dentro do app 'bar'
+        return redirect('bar:dashboard')
 
     # Busca os pedidos pagos para o tenant do lojista
     completed_orders = Order.objects.filter(tenant=tenant, status='paid').prefetch_related('items').order_by('-created_at')

@@ -119,6 +119,20 @@
                 <a href="{% url 'delivery:customer_menu' tenant_slug=user.tenant.slug %}" target="_blank">Cardápio Cliente</a>
                 <a href="{% url 'delivery:menu_online' %}">Cardápio Online</a>
                 <a href="{% url 'delivery:reports' %}">Relatório</a>
+            {% elif user.tenant.business_type == 'bar' %}
+                <a href="{% url 'bar:dashboard' %}">Painel Bar</a>
+                <a href="{% url 'bar:menu_admin' %}">Gerenciar Cardápio</a>
+                {% if user.tenant.is_open %}
+                    <a href="{% url 'bar:mesas' %}">Mesas</a>
+                {% else %}
+                    <span style="color: #6c757d; cursor: not-allowed;" title="Bar fechado">Mesas (Bar Fechado)</span>
+                {% endif %}
+                <a href="{% url 'bar:configuracoes' %}">Configurações</a>
+                <a href="{% url 'bar:reports' %}">Relatórios</a>
+                
+                <h3 style="margin-top: 20px; font-size: 0.9rem; color: #007bff;">Comandas Abertas</h3>
+                {% load bar_tags %}
+                {% comandas_abertas %}
             {% endif %}
             <a href="{% url 'logout' %}">Logout</a>
 

@@ -1,0 +1,203 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Imprimir Comanda - Mesa {{ dados.numero_mesa }}</title>
+    <style>
+        /* Estilos para impressão térmica 80mm */
+        @media print {
+            @page {
+                size: 80mm auto;
+                margin: 0;
+            }
+            body {
+                width: 80mm;
+                margin: 0;
+                padding: 2mm;
+            }
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            font-size: 10px;
+            line-height: 1.2;
+            margin: 0;
+            padding: 5px;
+            width: 72mm; /* Largura aproximada para 80mm térmica */
+            background: white;
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 1px dashed #000;
+            padding-bottom: 5px;
+            margin-bottom: 5px;
+        }
+
+        .header h1 {
+            font-size: 12px;
+            margin: 0 0 2px 0;
+            font-weight: bold;
+        }
+
+        .header p {
+            margin: 2px 0;
+            font-size: 9px;
+        }
+
+        .mesa-info {
+            text-align: center;
+            margin: 5px 0;
+            font-weight: bold;
+        }
+
+        .item {
+            display: flex;
+            justify-content: space-between;
+            margin: 2px 0;
+            padding: 1px 0;
+        }
+
+        .item-nome {
+            flex: 1;
+            font-size: 9px;
+        }
+
+        .item-qtd {
+            width: 20px;
+            text-align: center;
+            font-size: 9px;
+        }
+
+        .item-preco {
+            width: 25px;
+            text-align: right;
+            font-size: 9px;
+        }
+
+        .item-subtotal {
+            width: 30px;
+            text-align: right;
+            font-size: 9px;
+            font-weight: bold;
+        }
+
+        .observacao {
+            font-size: 8px;
+            color: #666;
+            margin-left: 10px;
+            font-style: italic;
+        }
+
+        .total {
+            border-top: 1px solid #000;
+            padding-top: 3px;
+            margin-top: 5px;
+            text-align: right;
+            font-weight: bold;
+            font-size: 11px;
+        }
+
+        .gorjeta-info {
+            font-size: 8px;
+            text-align: center;
+            margin-top: 3px;
+            color: #666;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 8px;
+            border-top: 1px dashed #000;
+            padding-top: 3px;
+            font-size: 8px;
+            color: #666;
+        }
+
+        /* Esconder elementos na impressão */
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+        }
+
+        .no-print {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .no-print:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>{{ dados.tenant_nome }}</h1>
+        <p>COMANDA</p>
+    </div>
+
+    <div class="mesa-info">
+        MESA {{ dados.numero_mesa }}
+        <br>
+        {{ dados.data_hora|date:"d/m/Y H:i" }}
+    </div>
+
+    <div class="itens">
+        {% for item in dados.itens %}
+            <div class="item">
+                <div class="item-nome">{{ item.nome }}</div>
+                <div class="item-qtd">{{ item.quantidade }}</div>
+                <div class="item-preco">{{ item.preco_unitario|floatformat:2 }}</div>
+                <div class="item-subtotal">{{ item.subtotal|floatformat:2 }}</div>
+            </div>
+            {% if item.observacao %}
+                <div class="observacao">Obs: {{ item.observacao }}</div>
+            {% endif %}
+        {% endfor %}
+    </div>
+
+    <div class="total">
+        TOTAL: R$ {{ dados.total_com_gorjeta|floatformat:2 }}
+    </div>
+
+    {% if dados.gorjeta_10 %}
+        <div class="gorjeta-info">
+            * Inclui 10% de taxa de serviço
+        </div>
+    {% endif %}
+
+    <div class="footer">
+        Obrigado pela preferência!
+        <br>
+        {{ dados.data_hora|date:"d/m/Y H:i" }}
+    </div>
+
+    <script>
+        // Auto-imprimir quando a página carregar
+        window.onload = function() {
+            // Pequeno delay para garantir que a página esteja totalmente carregada
+            setTimeout(function() {
+                window.print();
+            }, 500);
+        };
+
+        // Fechar a janela após imprimir (opcional)
+        window.onafterprint = function() {
+            // Voltar para a página anterior após imprimir
+            window.history.back();
+        };
+    </script>
+</body>
+</html>
