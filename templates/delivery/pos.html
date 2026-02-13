@@ -10,29 +10,34 @@
         gap: 20px;
         height: calc(100vh - 100px);
     }
+
     .menu-section {
         overflow-y: auto;
         padding-right: 10px;
     }
+
     .cart-section {
         background: #fff;
         border-radius: 8px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         display: flex;
         flex-direction: column;
         height: 100%;
     }
+
     .cart-items {
         flex-grow: 1;
         overflow-y: auto;
         padding: 15px;
         border-bottom: 1px solid #eee;
     }
+
     .cart-form {
         padding: 15px;
         background: #f9f9f9;
         border-radius: 0 0 8px 8px;
     }
+
     .item-card {
         background: #fff;
         border: 1px solid #ddd;
@@ -45,10 +50,12 @@
         justify-content: space-between;
         align-items: center;
     }
+
     .item-card:hover {
         transform: scale(1.01);
         border-color: #007bff;
     }
+
     .category-title {
         font-size: 1.1rem;
         font-weight: bold;
@@ -57,6 +64,7 @@
         border-bottom: 2px solid #007bff;
         padding-bottom: 5px;
     }
+
     .cart-item {
         display: flex;
         justify-content: space-between;
@@ -65,12 +73,14 @@
         border-bottom: 1px solid #eee;
         font-size: 0.9rem;
     }
+
     .remove-btn {
         color: red;
         cursor: pointer;
         margin-left: 10px;
         font-weight: bold;
     }
+
     .total-row {
         font-size: 1.2rem;
         font-weight: bold;
@@ -80,33 +90,118 @@
         padding-top: 10px;
         border-top: 2px solid #ddd;
     }
-    .form-group { margin-bottom: 10px; }
-    .form-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 3px; }
-    .form-group input, .form-group select, .form-group textarea {
-        width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; text-transform: uppercase;
+
+    .form-group {
+        margin-bottom: 10px;
     }
+
+    .form-group label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: 3px;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+        text-transform: uppercase;
+    }
+
     .submit-btn {
-        width: 100%; padding: 12px; background-color: #28a745; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 1.1rem;
+        width: 100%;
+        padding: 12px;
+        background-color: #28a745;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 1.1rem;
     }
-    
+
     /* Modal Styles */
-    .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
-    .modal-content { background-color: #fff; padding: 20px; border-radius: 8px; width: 90%; max-width: 400px; }
-    .modal-header { display: flex; justify-content: space-between; margin-bottom: 15px; }
-    .close-modal { cursor: pointer; font-size: 1.5rem; }
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-content {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        width: 90%;
+        max-width: 400px;
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 15px;
+    }
+
+    .close-modal {
+        cursor: pointer;
+        font-size: 1.5rem;
+    }
 
     /* Estilos do Acordeão (Categorias Expansíveis) */
     .accordion-btn {
-        width: 100%; padding: 15px; background-color: #f8f9fa; border: 1px solid #ddd; border-radius: 5px;
-        text-align: left; font-weight: bold; font-size: 1.1rem; cursor: pointer; margin-bottom: 5px;
-        display: flex; justify-content: space-between; align-items: center; color: #333;
+        width: 100%;
+        padding: 15px;
+        background-color: #f8f9fa;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        text-align: left;
+        font-weight: bold;
+        font-size: 1.1rem;
+        cursor: pointer;
+        margin-bottom: 5px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: #333;
     }
-    .accordion-btn:hover { background-color: #e2e6ea; }
+
+    .accordion-btn:hover {
+        background-color: #e2e6ea;
+    }
+
     .accordion-content {
-        display: none; padding: 10px 5px; border-left: 4px solid #007bff; margin-bottom: 10px; background-color: #fff;
+        display: none;
+        padding: 10px 5px;
+        border-left: 4px solid #007bff;
+        margin-bottom: 10px;
+        background-color: #fff;
     }
-    .accordion-content.show { display: block; animation: fadeIn 0.3s; }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .accordion-content.show {
+        display: block;
+        animation: fadeIn 0.3s;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
 </style>
 
 <h2>Nova Venda (PDV)</h2>
@@ -115,34 +210,35 @@
     <!-- Coluna Esquerda: Cardápio -->
     <div class="menu-section">
         {% if combos %}
-            <button class="accordion-btn" onclick="toggleAccordion(this)">🔥 Combos <span>▼</span></button>
-            <div class="accordion-content">
-                {% for combo in combos %}
-                    <div class="item-card" onclick="openComboModal('{{ combo.id }}')">
-                        <div>
-                            <strong>{{ combo.name }}</strong><br>
-                            <small>{{ combo.description|truncatechars:50 }}</small>
-                        </div>
-                        <div style="color: #28a745; font-weight: bold;">R$ {{ combo.price|floatformat:2 }}</div>
-                    </div>
-                {% endfor %}
+        <button class="accordion-btn" onclick="toggleAccordion(this)">🔥 Combos <span>▼</span></button>
+        <div class="accordion-content">
+            {% for combo in combos %}
+            <div class="item-card" onclick="openComboModal('{{ combo.id }}')">
+                <div>
+                    <strong>{{ combo.name }}</strong><br>
+                    <small>{{ combo.description|truncatechars:50 }}</small>
+                </div>
+                <div style="color: #28a745; font-weight: bold;">R$ {{ combo.price|floatformat:2 }}</div>
             </div>
+            {% endfor %}
+        </div>
         {% endif %}
 
         {% regroup menu_items by category as category_list %}
         {% for category in category_list %}
-            <button class="accordion-btn" onclick="toggleAccordion(this)">{{ category.grouper.name }} <span>▼</span></button>
-            <div class="accordion-content">
-                {% for item in category.list %}
-                    <div class="item-card" onclick="checkItemOptions('{{ item.id }}')">
-                        <div>
-                            <strong>{{ item.name }}</strong><br>
-                            <small>{{ item.description|truncatechars:50 }}</small>
-                        </div>
-                        <div style="color: #28a745; font-weight: bold;">R$ {{ item.price|floatformat:2 }}</div>
-                    </div>
-                {% endfor %}
+        <button class="accordion-btn" onclick="toggleAccordion(this)">{{ category.grouper.name }}
+            <span>▼</span></button>
+        <div class="accordion-content">
+            {% for item in category.list %}
+            <div class="item-card" onclick="checkItemOptions('{{ item.id }}')">
+                <div>
+                    <strong>{{ item.name }}</strong><br>
+                    <small>{{ item.description|truncatechars:50 }}</small>
+                </div>
+                <div style="color: #28a745; font-weight: bold;">R$ {{ item.price|floatformat:2 }}</div>
             </div>
+            {% endfor %}
+        </div>
         {% endfor %}
     </div>
 
@@ -151,12 +247,12 @@
         <div class="cart-items" id="cart-list">
             <p style="text-align: center; color: #888; margin-top: 20px;">Carrinho vazio</p>
         </div>
-        
+
         <div class="cart-form">
             <form method="post" id="pos-form">
                 {% csrf_token %}
                 <input type="hidden" name="cart_data" id="cart-data-input">
-                
+
                 <div class="form-group">
                     <label>Cliente</label>
                     {{ form.customer_name }}
@@ -186,7 +282,7 @@
                     <span>Total Final:</span>
                     <span id="final-total">R$ 0.00</span>
                 </div>
-                
+
                 <button type="submit" class="submit-btn" style="margin-top: 15px;">Finalizar Venda</button>
             </form>
         </div>
@@ -196,7 +292,9 @@
 <!-- Modais (Reutilizados/Adaptados) -->
 <div id="comboModal" class="modal">
     <div class="modal-content">
-        <div class="modal-header"><h3>Combo</h3><span class="close-modal" onclick="closeModal('comboModal')">&times;</span></div>
+        <div class="modal-header">
+            <h3>Combo</h3><span class="close-modal" onclick="closeModal('comboModal')">&times;</span>
+        </div>
         <div id="comboModalBody"></div>
         <button onclick="addComboToCart()" class="submit-btn" style="margin-top: 10px;">Adicionar</button>
     </div>
@@ -204,7 +302,10 @@
 
 <div id="itemModal" class="modal">
     <div class="modal-content">
-        <div class="modal-header"><h3 id="itemModalTitle">Opcionais</h3><span class="close-modal" onclick="closeModal('itemModal')">&times;</span></div>
+        <div class="modal-header">
+            <h3 id="itemModalTitle">Opcionais</h3><span class="close-modal"
+                onclick="closeModal('itemModal')">&times;</span>
+        </div>
         <div id="itemModalBody"></div>
         <button onclick="addItemToCart()" class="submit-btn" style="margin-top: 10px;">Adicionar</button>
     </div>
@@ -212,10 +313,10 @@
 
 <script>
     // Dados do Backend
-    const itemsData = {{ items_json|safe }};
-    const combosData = {{ combos_json|safe }};
-    const optsData = {{ opts_json|safe }};
-    const zonesData = {{ zones_json|safe }};
+    const itemsData = {{ items_json| safe }};
+    const combosData = {{ combos_json| safe }};
+    const optsData = {{ opts_json| safe }};
+    const zonesData = {{ zones_json| safe }};
 
     let cart = [];
     let currentComboId = null;
@@ -226,13 +327,13 @@
         const list = document.getElementById('cart-list');
         const zoneId = document.getElementById('id_delivery_zone').value;
         const deliveryFee = zoneId ? (zonesData[zoneId] || 0) : 0;
-        
+
         list.innerHTML = '';
         let itemsTotal = 0;
 
         cart.forEach((item, index) => {
             itemsTotal += item.price * item.quantity;
-            
+
             const div = document.createElement('div');
             div.className = 'cart-item';
             div.innerHTML = `
@@ -303,7 +404,7 @@
         cart.push({
             type: 'item', id: item.id, name: fullName, price: parseFloat(item.price) + extraPrice, quantity: 1, optionals: optIds
         });
-        
+
         closeModal('itemModal');
         renderCart();
     }
@@ -318,7 +419,7 @@
         combo.slots.forEach(slot => {
             const items = itemsData.filter(i => i.category_id == slot.allowed_category.id);
             let optionsHtml = items.map(i => `<option value="${i.id}">${i.name}</option>`).join('');
-            
+
             body.innerHTML += `
                 <div style="margin-bottom:10px;">
                     <label>Escolha: ${slot.allowed_category.name}</label>
@@ -348,7 +449,7 @@
     }
 
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-    
+
     // Atualiza total ao mudar bairro
     document.getElementById('id_delivery_zone').addEventListener('change', renderCart);
 
@@ -363,7 +464,7 @@
     // Converte o texto dos inputs para maiúsculo enquanto o usuário digita
     const inputs = document.querySelectorAll('input[type="text"], input[type="tel"], textarea');
     inputs.forEach(input => {
-        input.addEventListener('input', function() {
+        input.addEventListener('input', function () {
             const start = this.selectionStart;
             const end = this.selectionEnd;
             this.value = this.value.toUpperCase();

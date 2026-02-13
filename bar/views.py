@@ -7,8 +7,10 @@ from django.utils import timezone
 from django.db import models
 from decimal import Decimal
 import json
+import datetime
+from datetime import datetime, timedelta
 from shop.models import Tenant
-from .models import BarCategory, BarMenuItem, BarComanda, BarComandaItem
+from .models import BarCategory, BarMenuItem, BarComanda, BarComandaItem, BarSystemNotice
 from .forms import BarCategoryForm, BarMenuItemForm
 
 @login_required(login_url='login')
@@ -17,7 +19,9 @@ def bar_dashboard(request):
         tenant = request.user.tenant
     except Tenant.DoesNotExist:
         return render(request, 'error.html', {'message': 'Você não tem uma loja associada.'})
-    return render(request, 'bar/bar_inicio.html')
+    
+    system_notices = BarSystemNotice.objects.filter(is_active=True)
+    return render(request, 'bar/bar_inicio.html', {'system_notices': system_notices})
 
 @login_required(login_url='login')
 def toggle_bar_status(request):
@@ -81,20 +85,64 @@ def customer_menu_view(request, tenant_slug):
     }
     return render(request, 'delivery/customer_menu.html', context)
 
+@login_required(login_url='login')
 def bar_reports_view(request):
     try:
         tenant = request.user.tenant
     except Tenant.DoesNotExist:
         return render(request, 'error.html', {'message': 'Você não tem um bar associado.'})
     
-    # Buscar comandas fechadas para relatórios
+    # Filtro de Datas
+    start_date_str = request.GET.get('start_date')
+    end_date_str = request.GET.get('end_date')
+
+    # Define padrão: últimos 30 dias se não informado
+    if not start_date_str:
+        start_date = timezone.now().date() - timedelta(days=30)
+    else:
+        start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+
+    if not end_date_str:
+        end_date = timezone.now().date()
+    else:
+        end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+
+    # Buscar comandas fechadas no intervalo
     comandas_fechadas = BarComanda.objects.filter(
         tenant=tenant,
-        status='fechada'
-    ).order_by('-data_fechamento')[:50]  # Últimas 50 comandas
+        status='fechada',
+        data_fechamento__date__range=[start_date, end_date]
+    ).order_by('-data_fechamento')
     
+    # Agregação por dia para o gráfico
+    from django.db.models.functions import TruncDate
+    from django.db.models import Sum, Count
+
+    daily_sales = comandas_fechadas.annotate(date=TruncDate('data_fechamento')).values('date').annotate(total=Sum('total')).order_by('date')
+
+    # Prepara dados para o Chart.js
+    dates = []
+    values = []
+    sales_dict = {entry['date']: entry['total'] for entry in daily_sales}
+    
+    delta = end_date - start_date
+    for i in range(delta.days + 1):
+        day = start_date + timedelta(days=i)
+        dates.append(day.strftime('%d/%m'))
+        values.append(float(sales_dict.get(day, 0)))
+    
+    total_sales = comandas_fechadas.aggregate(Sum('total'))['total__sum'] or 0
+    total_orders = comandas_fechadas.count()
+
     context = {
         'comandas_fechadas': comandas_fechadas,
+        'start_date': start_date.strftime('%Y-%m-%d'),
+        'end_date': end_date.strftime('%Y-%m-%d'),
+        'dates_json': json.dumps(dates),
+        'values_json': json.dumps(values),
+        'total_sales': total_sales,
+        'total_orders': total_orders,
+        'tenant': tenant,
     }
     
     return render(request, 'bar/reports.html', context)

@@ -140,4 +140,18 @@ class MenuOnlineImage(models.Model):
 
     def __str__(self):
         return f"Imagem {self.id} - {self.tenant.name}"
+
+class SystemNotice(models.Model):
+    content = models.CharField(max_length=255, verbose_name="Texto do Aviso")
+    is_active = models.BooleanField(default=True, verbose_name="Ativo")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Aviso do Sistema"
+        verbose_name_plural = "Avisos do Sistema"
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return self.content
+
     

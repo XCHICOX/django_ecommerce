@@ -10,7 +10,7 @@ from django.db.models import Sum, Count, Max
 from django.db.models.functions import TruncDate
 from urllib.parse import quote
 from shop.models import Tenant # Importamos o Tenant do app shop (Core)
-from .models import DeliveryCategory, MenuItem, DeliveryZone, Combo, DeliveryOrder, DeliveryOrderItem, DeliveryOptional, MenuOnlineImage
+from .models import DeliveryCategory, MenuItem, DeliveryZone, Combo, DeliveryOrder, DeliveryOrderItem, DeliveryOptional, MenuOnlineImage, SystemNotice
 from .forms import DeliveryCategoryForm, MenuItemForm, DeliveryZoneForm, ComboForm, ComboSlotFormSet, DeliveryOrderForm, DeliveryOptionalForm
 
 @login_required(login_url='login')
@@ -20,9 +20,8 @@ def delivery_dashboard(request):
     except Tenant.DoesNotExist:
         return render(request, 'error.html', {'message': 'Você não tem uma loja associada.'})
 
-    # Aqui futuramente carregaremos pedidos de delivery, cardápio, etc.
-    # Por enquanto, renderiza o template base do delivery
-    return render(request, 'delivery_inicio.html')
+    system_notices = SystemNotice.objects.filter(is_active=True)
+    return render(request, 'delivery_inicio.html', {'system_notices': system_notices})
 
 @login_required(login_url='login')
 def toggle_store_status(request):
@@ -343,7 +342,7 @@ def delivery_checkout_view(request, tenant_slug):
                 if cart_item['is_combo']:
                     # Para combos, salva o nome do combo e as escolhas
                     choices_formatted = "\n".join([f"* {c.category.name}: {c.name}" for c in cart_item['choices']])
-                    item_name_with_choices = f"{cart_item['name']}\n{choices_formatted}"
+                    item_name_with_choices = f"{cart_item['name']} (\n{choices_formatted})"
                     DeliveryOrderItem.objects.create(
                         order=order, 
                         item_name=item_name_with_choices, 
@@ -683,7 +682,7 @@ def delivery_pos_view(request):
                             choice_ids = item.get('choices', [])
                             choices = MenuItem.objects.filter(id__in=choice_ids).select_related('category')
                             choice_names = "\n".join([f"* {c.category.name}: {c.name}" for c in choices])
-                            name_desc = f"{db_combo.name}\n{choice_names}"
+                            name_desc = f"{db_combo.name} (\n{choice_names})"
                             
                             final_items.append({
                                 'name': name_desc,

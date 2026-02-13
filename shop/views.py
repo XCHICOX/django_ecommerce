@@ -22,7 +22,7 @@ def inicio_view(request):
         # Se o usuário não for um lojista, redireciona ou mostra um erro.
         return render(request, 'error.html', {'message': 'Você não tem uma loja associada.'})
 
-    if tenant.business_type == 'delivery':
+    if tenant.business_type == 'delivery' or tenant.business_type == 'bar_delivery':
         # Redireciona para a view dashboard dentro do app 'delivery'
         return redirect('delivery:dashboard')
     

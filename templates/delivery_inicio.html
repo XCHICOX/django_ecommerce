@@ -10,12 +10,12 @@
         gap: 20px;
         margin-top: 20px;
     }
-    
+
     .dashboard-header {
         background-color: #fff;
         padding: 30px;
         border-radius: 8px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
         text-align: center;
         margin-bottom: 20px;
     }
@@ -29,7 +29,7 @@
         background-color: #fff;
         padding: 20px;
         border-radius: 8px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
     }
 
     .info-aside h3 {
@@ -42,21 +42,27 @@
 
 <div class="dashboard-header">
     {% if user.tenant.logo %}
-        <img src="{{ user.tenant.logo.url }}" alt="{{ user.tenant.name }}">
+    <img src="{{ user.tenant.logo.url }}" alt="{{ user.tenant.name }}">
     {% endif %}
+    {% if user.tenant.business_type == 'bar_delivery' %}
+    <h1>Bem-vindo ao Bar & Delivery {{ user.tenant.name }}</h1>
+    {% else %}
     <h1>Bem-vindo ao Delivery {{ user.tenant.name }}</h1>
-    
+    {% endif %}
+
     <div style="margin-top: 20px;">
         <form method="post" action="{% url 'delivery:toggle_status' %}">
             {% csrf_token %}
             {% if user.tenant.is_open %}
-                <button type="submit" style="background-color: #28a745; color: white; padding: 12px 25px; border: none; border-radius: 50px; font-size: 1.1rem; cursor: pointer; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                    🟢 Loja Aberta (Clique para Fechar)
-                </button>
+            <button type="submit"
+                style="background-color: #28a745; color: white; padding: 12px 25px; border: none; border-radius: 50px; font-size: 1.1rem; cursor: pointer; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                🟢 Loja Aberta (Clique para Fechar)
+            </button>
             {% else %}
-                <button type="submit" style="background-color: #dc3545; color: white; padding: 12px 25px; border: none; border-radius: 50px; font-size: 1.1rem; cursor: pointer; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                    🔴 Loja Fechada (Clique para Abrir)
-                </button>
+            <button type="submit"
+                style="background-color: #dc3545; color: white; padding: 12px 25px; border: none; border-radius: 50px; font-size: 1.1rem; cursor: pointer; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                🔴 Loja Fechada (Clique para Abrir)
+            </button>
             {% endif %}
         </form>
     </div>
@@ -65,18 +71,20 @@
 <div class="dashboard-grid">
     <aside class="info-aside" style="border-left: 4px solid #ffc107;">
         <h3>⚠️ Avisos do Sistema</h3>
-        <p>• Lembre-se de abrir o caixa antes de iniciar as vendas.</p>
-        <p>• Verifique se há atualizações pendentes no cardápio.</p>
-        <p>• Mantenha seu WhatsApp conectado para notificações.</p>
+        {% for notice in system_notices %}
+        <p>• {{ notice.content }}</p>
+        {% empty %}
+        <p>Nenhum aviso importante no momento.</p>
+        {% endfor %}
     </aside>
 
     <aside class="info-aside" style="border-left: 4px solid #17a2b8;">
         <h3>ℹ️ Informações Importantes</h3>
-        <p><strong>Status Atual:</strong> 
+        <p><strong>Status Atual:</strong>
             {% if user.tenant.is_open %}
-                <span style="color: green; font-weight: bold;">Aberto para Pedidos</span>
+            <span style="color: green; font-weight: bold;">Aberto para Pedidos</span>
             {% else %}
-                <span style="color: red; font-weight: bold;">Fechado</span>
+            <span style="color: red; font-weight: bold;">Fechado</span>
             {% endif %}
         </p>
         <p><strong>Plano:</strong> Premium</p>

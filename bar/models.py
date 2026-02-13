@@ -87,3 +87,16 @@ class BarComandaItem(models.Model):
         # Atualiza o total da comanda
         self.comanda.total = self.comanda.calcular_total()
         self.comanda.save()
+
+class BarSystemNotice(models.Model):
+    content = models.CharField(max_length=255, verbose_name="Texto do Aviso")
+    is_active = models.BooleanField(default=True, verbose_name="Ativo")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Aviso do Sistema (Bar)"
+        verbose_name_plural = "Avisos do Sistema (Bar)"
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return self.content

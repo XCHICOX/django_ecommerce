@@ -237,11 +237,13 @@
                         {% endfor %}
                     </table>
                     <hr style="border-top: 1px dashed #000;">
-                    <p style="display: flex; justify-content: space-between;"><span>Entrega:</span> <span>{{ order.delivery_fee|floatformat:2 }}</span></p>
+                    <p style="display: flex; justify-content: space-between;"><span>Entrega:</span> <span>{{
+                            order.delivery_fee|floatformat:2 }}</span></p>
                     <p style="display: flex; justify-content: space-between; font-weight: 900; font-size: 24px;">
                         <span>TOTAL:</span> <span>R$ {{ order.final_total|floatformat:2 }}</span>
                     </p>
-                    <p>Pagamento: {{ order.get_payment_method_display }} {% if order.change_for %}(Troco: {{ order.change_for }}){% endif %}</p>
+                    <p>Pagamento: {{ order.get_payment_method_display }} {% if order.change_for %}(Troco: {{
+                        order.change_for }}){% endif %}</p>
                     <center>
                         <p style="margin-top: 10px;">Obrigado pela preferência!</p>
                     </center>

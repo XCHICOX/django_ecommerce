@@ -18,6 +18,7 @@ class Tenant(models.Model):
         ('ecommerce', 'E-commerce (Varejo)'),
         ('delivery', 'Delivery (Restaurantes/Bebidas)'),
         ('bar', 'Bar (Bebidas e Serviços)'),
+        ('bar_delivery', 'Bar & Delivery (Híbrido)'),
     ]
 
     name = models.CharField(max_length=100)

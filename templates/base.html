@@ -1,6 +1,7 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,28 +11,39 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
 
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             display: flex;
             margin: 0;
             font-family: 'Poppins', sans-serif;
             background-color: #f8f9fa;
         }
+
         .sidebar {
-            width: 180px;
+            width: 200px;
             background-color: #ffffff;
             padding: 20px;
+            padding-bottom: 80px;
+            /* Extra padding for bottom scroll access */
             height: 100vh;
-            box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
             position: fixed;
             top: 0;
             left: 0;
+            overflow-y: auto;
+            /* Enable vertical scroll */
         }
+
         .sidebar h2 {
             font-size: 1.5rem;
             text-align: center;
             color: #007bff;
             margin-bottom: 30px;
         }
+
         .sidebar a {
             display: block;
             padding: 12px 15px;
@@ -42,19 +54,31 @@
             font-weight: 600;
             transition: background-color 0.2s, color 0.2s;
         }
-        .sidebar a:hover, .sidebar a.active {
+
+        .sidebar a:hover,
+        .sidebar a.active {
             background-color: #007bff;
             color: #fff;
         }
+
         .content {
             flex-grow: 1;
             padding: 20px;
-            margin-left: 220px; /* Espaço para a sidebar fixa */
+            margin-left: 200px;
+            /* Adjusted to match sidebar width */
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
 
         /* Estilos Mobile */
-        .mobile-menu-btn { display: none; }
-        .overlay { display: none; }
+        .mobile-menu-btn {
+            display: none;
+        }
+
+        .overlay {
+            display: none;
+        }
 
         @media (max-width: 768px) {
             .sidebar {
@@ -62,13 +86,16 @@
                 transition: transform 0.3s ease;
                 z-index: 1000;
             }
+
             .sidebar.active {
                 transform: translateX(0);
             }
+
             .content {
                 margin-left: 0;
                 padding-top: 60px;
             }
+
             .mobile-menu-btn {
                 display: block;
                 position: fixed;
@@ -81,19 +108,27 @@
                 padding: 8px 12px;
                 border-radius: 4px;
                 cursor: pointer;
-                box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
             }
+
             .overlay {
                 position: fixed;
-                top: 0; left: 0; right: 0; bottom: 0;
-                background: rgba(0,0,0,0.5);
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
                 z-index: 999;
                 display: none;
             }
-            .overlay.active { display: block; }
+
+            .overlay.active {
+                display: block;
+            }
         }
     </style>
 </head>
+
 <body>
     <div class="overlay" onclick="toggleMenu()"></div>
     <button class="mobile-menu-btn" onclick="toggleMenu()">
@@ -103,48 +138,74 @@
     <div class="sidebar" id="sidebar">
         <h2>Menu</h2>
         {% if user.is_authenticated %}
-            {% if user.tenant.business_type == 'ecommerce' %}
-                <a href="{% url 'shop:inicio' %}">Painel de Vendas</a>
-                {# Link para a vitrine do tenant do usuário logado #}
-                <a href="{% url 'vitrine' tenant_slug=user.tenant.slug %}" target="_blank">Minha Vitrine</a>
-                <a href="{% url 'shop:produtos' %}">Gerenciar Produtos</a>
-                <a href="{% url 'shop:storefront_settings' %}">Configurar Vitrine</a>
-                <a href="{% url 'shop:configuracoes' %}">Configurações</a>
-            {% elif user.tenant.business_type == 'delivery' %}
-                <a href="{% url 'shop:inicio' %}">Início</a>
-                <a href="{% url 'delivery:menu_admin' %}">Cardápio Admin</a>
-                <a href="{% url 'delivery:pos' %}">Vendas (PDV)</a>
-                <a href="{% url 'delivery:combo_admin' %}">Combos</a>
-                <a href="{% url 'delivery:orders_list' %}">Pedidos</a>
-                <a href="{% url 'delivery:customer_menu' tenant_slug=user.tenant.slug %}" target="_blank">Cardápio Cliente</a>
-                <a href="{% url 'delivery:menu_online' %}">Cardápio Online</a>
-                <a href="{% url 'delivery:reports' %}">Relatório</a>
-            {% elif user.tenant.business_type == 'bar' %}
-                <a href="{% url 'bar:dashboard' %}">Painel Bar</a>
-                <a href="{% url 'bar:menu_admin' %}">Gerenciar Cardápio</a>
-                {% if user.tenant.is_open %}
-                    <a href="{% url 'bar:mesas' %}">Mesas</a>
-                {% else %}
-                    <span style="color: #6c757d; cursor: not-allowed;" title="Bar fechado">Mesas (Bar Fechado)</span>
-                {% endif %}
-                <a href="{% url 'bar:configuracoes' %}">Configurações</a>
-                <a href="{% url 'bar:reports' %}">Relatórios</a>
-                
-                <h3 style="margin-top: 20px; font-size: 0.9rem; color: #007bff;">Comandas Abertas</h3>
-                {% load bar_tags %}
-                {% comandas_abertas %}
-            {% endif %}
-            <a href="{% url 'logout' %}">Logout</a>
+        {% if user.tenant.business_type == 'ecommerce' %}
+        <a href="{% url 'shop:inicio' %}">Painel de Vendas</a>
+        {# Link para a vitrine do tenant do usuário logado #}
+        <a href="{% url 'vitrine' tenant_slug=user.tenant.slug %}" target="_blank">Minha Vitrine</a>
+        <a href="{% url 'shop:produtos' %}">Gerenciar Produtos</a>
+        <a href="{% url 'shop:storefront_settings' %}">Configurar Vitrine</a>
+        <a href="{% url 'shop:configuracoes' %}">Configurações</a>
+        {% elif user.tenant.business_type == 'delivery' %}
+        <a href="{% url 'shop:inicio' %}">Início</a>
+        <a href="{% url 'delivery:menu_admin' %}">Cardápio Admin</a>
+        <a href="{% url 'delivery:pos' %}">Vendas (PDV)</a>
+        <a href="{% url 'delivery:combo_admin' %}">Combos</a>
+        <a href="{% url 'delivery:orders_list' %}">Pedidos</a>
+        <a href="{% url 'delivery:customer_menu' tenant_slug=user.tenant.slug %}" target="_blank">Cardápio Cliente</a>
+        <a href="{% url 'delivery:menu_online' %}">Cardápio Online</a>
+        <a href="{% url 'delivery:reports' %}">Relatório</a>
+        {% elif user.tenant.business_type == 'bar' %}
+        <a href="{% url 'bar:dashboard' %}">Painel Bar</a>
+        <a href="{% url 'bar:menu_admin' %}">Gerenciar Cardápio</a>
+        {% if user.tenant.is_open %}
+        <a href="{% url 'bar:mesas' %}">Mesas</a>
+        {% else %}
+        <span style="color: #6c757d; cursor: not-allowed;" title="Bar fechado">Mesas (Bar Fechado)</span>
+        {% endif %}
+        <a href="{% url 'bar:configuracoes' %}">Configurações</a>
+        <a href="{% url 'bar:reports' %}">Relatórios</a>
 
-            {% if messages %}
-                <div style="margin-top: 20px;">
-                    {% for message in messages %}
-                        <div style="padding: 10px; margin-bottom: 10px; border-radius: 4px; font-size: 0.85rem; background-color: {% if message.tags == 'error' %}#f8d7da; color: #721c24; border: 1px solid #f5c6cb;{% else %}#d4edda; color: #155724; border: 1px solid #c3e6cb;{% endif %}">
-                            {{ message }}
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endif %}
+        <h3 style="margin-top: 20px; font-size: 0.9rem; color: #007bff;">Comandas Abertas</h3>
+        {% load bar_tags %}
+        {% comandas_abertas %}
+        {% elif user.tenant.business_type == 'bar_delivery' %}
+        <h3 style="font-size: 1rem; color: #007bff; margin-top: 10px; margin-bottom: 5px; padding-left: 10px;">Delivery
+        </h3>
+        <a href="{% url 'shop:inicio' %}">Início</a>
+        <a href="{% url 'delivery:menu_admin' %}">Cardápio Admin</a>
+        <a href="{% url 'delivery:pos' %}">Vendas (PDV)</a>
+        <a href="{% url 'delivery:combo_admin' %}">Combos</a>
+        <a href="{% url 'delivery:orders_list' %}">Pedidos</a>
+        <a href="{% url 'delivery:customer_menu' tenant_slug=user.tenant.slug %}" target="_blank">Cardápio Cliente</a>
+        <a href="{% url 'delivery:menu_online' %}">Cardápio Online</a>
+        <a href="{% url 'delivery:reports' %}">Relatório Delivery</a>
+
+        <h3 style="font-size: 1rem; color: #007bff; margin-top: 20px; margin-bottom: 5px; padding-left: 10px;">Bar</h3>
+        <a href="{% url 'bar:menu_admin' %}">Cardápio Bar</a>
+        {% if user.tenant.is_open %}
+        <a href="{% url 'bar:mesas' %}">Mesas</a>
+        {% else %}
+        <span style="color: #6c757d; cursor: not-allowed;" title="Bar fechado">Mesas (Bar Fechado)</span>
+        {% endif %}
+        <a href="{% url 'bar:configuracoes' %}">Configurações Bar</a>
+        <a href="{% url 'bar:reports' %}">Relatório Bar</a>
+
+        <h3 style="margin-top: 20px; font-size: 0.9rem; color: #007bff;">Comandas Abertas</h3>
+        {% load bar_tags %}
+        {% comandas_abertas %}
+        {% endif %}
+        <a href="{% url 'logout' %}">Logout</a>
+
+        {% if messages %}
+        <div style="margin-top: 20px;">
+            {% for message in messages %}
+            <div
+                style="padding: 10px; margin-bottom: 10px; border-radius: 4px; font-size: 0.85rem; background-color: {% if message.tags == 'error' %}#f8d7da; color: #721c24; border: 1px solid #f5c6cb;{% else %}#d4edda; color: #155724; border: 1px solid #c3e6cb;{% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
         {% endif %}
     </div>
     <div class="content">
@@ -152,6 +213,10 @@
             {% block content %}
             {% endblock %}
         </main>
+        <footer
+            style="margin-top: auto; padding-top: 40px; padding-bottom: 20px; text-align: center; color: #6c757d; font-size: 0.85rem;">
+            &copy; SoftLabsPB 2026 - Todos os direitos reservados.
+        </footer>
     </div>
 
     <script>
@@ -161,4 +226,5 @@
         }
     </script>
 </body>
+
 </html>

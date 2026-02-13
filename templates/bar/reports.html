@@ -6,138 +6,170 @@
 <!-- Campo CSRF necessário para requisições AJAX -->
 {% csrf_token %}
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
-    .reports-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 20px;
+    .report-container {
+        max-width: 1400px;
     }
-    
-    .reports-header {
+
+    .filter-card {
+        background: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        margin-bottom: 20px;
         display: flex;
         justify-content: space-between;
         align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .filter-form {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .filter-form input {
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+
+    .filter-form button {
+        padding: 8px 15px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
         margin-bottom: 30px;
-        padding-bottom: 20px;
-        border-bottom: 2px solid #e9ecef;
     }
-    
-    .reports-header h1 {
-        margin: 0;
-        color: #495057;
+
+    .stat-card {
+        background: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        text-align: center;
     }
-    
+
+    .stat-value {
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: #28a745;
+        margin: 10px 0;
+    }
+
+    .chart-container {
+        background: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        margin-bottom: 30px;
+        height: 400px;
+    }
+
+    .comandas-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+    }
+
     .comanda-card {
         background-color: #fff;
-        border: 1px solid #e9ecef;
+        border: 1px solid #e0e0e0;
         border-radius: 8px;
         padding: 20px;
-        margin-bottom: 20px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        display: flex;
+        flex-direction: column;
     }
-    
+
     .comanda-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 15px;
+        border-bottom: 1px solid #eee;
         padding-bottom: 10px;
-        border-bottom: 1px solid #e9ecef;
+        margin-bottom: 10px;
     }
-    
-    .comanda-mesa {
-        font-size: 1.2rem;
-        font-weight: bold;
-        color: #495057;
+
+    .comanda-id {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: #333;
     }
-    
+
     .comanda-data {
-        color: #6c757d;
         font-size: 0.9rem;
+        color: #6c757d;
     }
-    
-    .comanda-itens {
-        margin-bottom: 15px;
+
+    .item-list {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 15px 0;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 10px;
     }
-    
-    .item-row {
+
+    .item-list li {
         display: flex;
         justify-content: space-between;
-        align-items: center;
-        padding: 5px 0;
-        border-bottom: 1px solid #f8f9fa;
+        margin-bottom: 5px;
+        font-size: 0.95rem;
     }
-    
-    .item-nome {
-        flex: 1;
-        font-weight: 500;
-    }
-    
-    .item-qtd {
-        width: 60px;
-        text-align: center;
-        color: #6c757d;
-    }
-    
-    .item-preco {
-        width: 80px;
-        text-align: right;
-        color: #6c757d;
-    }
-    
-    .item-subtotal {
-        width: 80px;
-        text-align: right;
-        font-weight: 500;
-    }
-    
+
     .comanda-total {
-        text-align: right;
+        font-weight: 700;
         font-size: 1.1rem;
-        font-weight: bold;
+        text-align: right;
         color: #28a745;
-        padding-top: 10px;
-        border-top: 2px solid #e9ecef;
+        margin-bottom: 15px;
     }
-    
-    .btn-imprimir-relatorio {
-        background-color: #17a2b8;
-        color: white;
-        border: none;
-        padding: 8px 12px;
-        border-radius: 4px;
+
+    .actions {
+        display: flex;
+        gap: 10px;
+        margin-top: auto;
+    }
+
+    .btn {
+        flex: 1;
+        padding: 10px;
+        text-align: center;
+        border-radius: 5px;
+        text-decoration: none;
+        font-weight: 600;
         cursor: pointer;
+        border: none;
         font-size: 0.9rem;
-        font-weight: 500;
-        transition: background-color 0.3s;
-        pointer-events: auto !important;
-        position: relative;
-        z-index: 10;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 5px;
     }
-    
-    .btn-imprimir-relatorio:hover {
-        background-color: #138496;
+
+    .btn-print {
+        background-color: #333;
+        color: white;
     }
-    
-    .btn-excluir-relatorio {
+
+    .btn-delete {
         background-color: #dc3545;
         color: white;
-        border: none;
-        padding: 8px 12px;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 0.9rem;
-        font-weight: 500;
-        transition: background-color 0.3s;
-        pointer-events: auto !important;
-        position: relative;
-        z-index: 10;
     }
-    
-    .btn-excluir-relatorio:hover {
-        background-color: #c82333;
-    }
-    
+
     /* Modal de senha */
     .senha-modal {
         display: none;
@@ -147,297 +179,238 @@
         width: 100%;
         height: 100%;
         background-color: rgba(0, 0, 0, 0.8);
-        z-index: 10000 !important;
+        z-index: 10000;
         justify-content: center;
         align-items: center;
     }
-    
+
     .senha-modal-content {
         background-color: white;
         padding: 25px;
         border-radius: 8px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         max-width: 400px;
         width: 90%;
         text-align: center;
     }
-    
-    .senha-modal h3 {
-        margin-top: 0;
-        color: #dc3545;
-        font-size: 1.2rem;
-    }
-    
+
     .senha-input {
-        width: 100%;
+        width: 80%;
         padding: 12px;
         border: 2px solid #ddd;
         border-radius: 4px;
-        font-size: 1rem;
         margin: 15px 0;
-        box-sizing: border-box;
-    }
-    
-    .senha-input:focus {
-        border-color: #dc3545;
-        outline: none;
-    }
-    
-    .senha-buttons {
-        display: flex;
-        gap: 10px;
-        justify-content: center;
-    }
-    
-    .btn-modal {
-        padding: 10px 20px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 0.9rem;
-        font-weight: 500;
-        transition: background-color 0.3s;
-    }
-    
-    .btn-confirmar {
-        background-color: #dc3545;
-        color: white;
-    }
-    
-    .btn-confirmar:hover {
-        background-color: #c82333;
-    }
-    
-    .btn-cancelar {
-        background-color: #6c757d;
-        color: white;
-    }
-    
-    .btn-cancelar:hover {
-        background-color: #545b62;
-    }
-    
-    .no-reports {
-        text-align: center;
-        padding: 50px;
-        color: #6c757d;
-        font-size: 1.1rem;
     }
 </style>
 
-<div class="reports-container">
-    <div class="reports-header">
-        <h1>📊 Relatórios de Comandas</h1>
-        <div>
-            <small style="color: #6c757d;">Últimas 50 comandas fechadas</small>
+<div class="report-container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 style="margin: 0;">Relatório do Bar</h2>
+    </div>
+
+    <div class="filter-card">
+        <span>Filtrar por período:</span>
+        <form method="get" class="filter-form">
+            <input type="date" name="start_date" value="{{ start_date }}" required>
+            <span>até</span>
+            <input type="date" name="end_date" value="{{ end_date }}" required>
+            <button type="submit">Filtrar</button>
+        </form>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h3>Total Vendido</h3>
+            <div class="stat-value">R$ {{ total_sales|floatformat:2 }}</div>
+            <p>No período selecionado</p>
+        </div>
+        <div class="stat-card">
+            <h3>Total de Comandas</h3>
+            <div class="stat-value" style="color: #007bff;">{{ total_orders }}</div>
+            <p>Comandas fechadas</p>
         </div>
     </div>
-    
-    {% if comandas_fechadas %}
+
+    <h3>Lista de Comandas</h3>
+    <div class="comandas-grid">
         {% for comanda in comandas_fechadas %}
-            <div class="comanda-card">
-                <div class="comanda-header">
-                    <div class="comanda-mesa">
-                        Mesa {{ comanda.numero_mesa }}
-                    </div>
-                    <div class="comanda-data">
-                        Fechada em {{ comanda.data_fechamento|date:"d/m/Y H:i" }}
-                    </div>
-                </div>
-                
-                <div class="comanda-itens">
-                    {% for item in comanda.itens.all %}
-                        <div class="item-row">
-                            <div class="item-nome">
-                                {{ item.item.name }}
-                                {% if item.observacao %}
-                                    <br><small style="color: #6c757d;">Obs: {{ item.observacao }}</small>
-                                {% endif %}
-                            </div>
-                            <div class="item-qtd">{{ item.quantidade }}x</div>
-                            <div class="item-preco">R$ {{ item.preco_unitario|floatformat:2 }}</div>
-                            <div class="item-subtotal">R$ {{ item.subtotal|floatformat:2 }}</div>
-                        </div>
-                    {% endfor %}
-                </div>
-                
-                <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 10px; border-top: 2px solid #e9ecef;">
-                    <div class="comanda-total" style="margin: 0; padding-top: 0; border-top: none;">
-                        Total: R$ {{ comanda.total|floatformat:2 }}
-                        {% if comanda.gorjeta_10 %}
-                            <br><small>(Inclui 10% de taxa de serviço)</small>
-                        {% endif %}
-                    </div>
-                    <div style="display: flex; gap: 10px;">
-                        <button onclick="imprimirComanda({{ comanda.id }})" 
-                                class="btn-imprimir-relatorio" 
-                                title="Reimprimir comanda">
-                            🖨️ Imprimir
-                        </button>
-                        <button onclick="excluirComanda({{ comanda.id }}, {{ comanda.numero_mesa }})" 
-                                class="btn-excluir-relatorio" 
-                                data-comanda-id="{{ comanda.id }}"
-                                data-numero-mesa="{{ comanda.numero_mesa }}"
-                                title="Excluir comanda">
-                            🗑️ Excluir
-                        </button>
-                    </div>
-                </div>
+        <div class="comanda-card" id="comanda-{{ comanda.id }}">
+            <div class="comanda-header">
+                <span class="comanda-id">Mesa {{ comanda.numero_mesa }}</span>
+                <span class="comanda-data">{{ comanda.data_fechamento|date:"d/m H:i" }}</span>
             </div>
-        {% endfor %}
-    {% else %}
-        <div class="no-reports">
-            <p>📭 Nenhuma comanda fechada encontrada.</p>
-            <p>As comandas aparecerão aqui após serem fechadas.</p>
+
+            <ul class="item-list">
+                {% for item in comanda.itens.all %}
+                <li>
+                    <span>{{ item.quantidade }}x {{ item.item.name }}</span>
+                    <span>R$ {{ item.subtotal|floatformat:2 }}</span>
+                </li>
+                {% if item.observacao %}
+                <li style="font-size: 0.8rem; color: #6c757d; border-bottom: none;">
+                    Obs: {{ item.observacao }}
+                </li>
+                {% endif %}
+                {% endfor %}
+            </ul>
+
+            <div class="comanda-total">
+                Total: R$ {{ comanda.total|floatformat:2 }}
+            </div>
+
+            {% if comanda.gorjeta_10 %}
+            <div style="font-size: 0.85rem; color: #666; margin-bottom: 15px; text-align: right;">
+                (Inclui 10% de taxa de serviço)
+            </div>
+            {% endif %}
+
+            <div class="actions">
+                <button onclick="imprimirComanda({{ comanda.id }})" class="btn btn-print">
+                    <span class="material-icons">print</span> Imprimir
+                </button>
+                <button onclick="excluirComanda({{ comanda.id }}, {{ comanda.numero_mesa }})" class="btn btn-delete">
+                    <span class="material-icons">delete</span> Excluir
+                </button>
+            </div>
         </div>
-    {% endif %}
+        {% empty %}
+        <div style="grid-column: 1 / -1; padding: 40px; text-align: center; background: #fff; border-radius: 8px;">
+            <p>Nenhuma comanda encontrada neste período.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="chart-container" style="margin-top: 40px;">
+        <h3 style="margin-top: 0; margin-bottom: 20px;">Evolução de Vendas</h3>
+        <canvas id="salesChart"></canvas>
+    </div>
 </div>
+
+<script>
+    const ctx = document.getElementById('salesChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {{ dates_json| safe }},
+        datasets: [{
+            label: 'Vendas do Bar (R$)',
+            data: {{ values_json| safe }},
+        backgroundColor: 'rgba(0, 123, 255, 0.1)',
+        borderColor: 'rgba(0, 123, 255, 1)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.3
+            }]
+        },
+        options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    callback: function (value) { return 'R$ ' + value; }
+                }
+            }
+        }
+    }
+    });
+</script>
 
 <!-- Modal para senha de exclusão -->
 <div id="senhaModal" class="senha-modal" style="display: none;">
     <div class="senha-modal-content">
         <h3>🔒 Confirmação de Exclusão</h3>
-        <p>Digite sua senha para confirmar a exclusão da comanda da <strong>Mesa <span id="modal-mesa-numero"></span></strong>:</p>
+        <p>Digite sua senha para confirmar a exclusão da comanda da <strong>Mesa <span
+                    id="modal-mesa-numero"></span></strong>:</p>
         <input type="password" id="senhaInput" class="senha-input" placeholder="Digite sua senha">
         <div class="senha-buttons">
-            <button class="btn-modal btn-cancelar" onclick="fecharModalSenha()">Cancelar</button>
-            <button class="btn-modal btn-confirmar" onclick="confirmarExclusao()">Confirmar Exclusão</button>
+            <button class="btn-modal btn-cancelar" onclick="fecharModalSenha()"
+                style="padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; background-color: #6c757d; color: white;">Cancelar</button>
+            <button class="btn-modal btn-confirmar" onclick="confirmarExclusao()"
+                style="padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; background-color: #dc3545; color: white;">Confirmar
+                Exclusão</button>
         </div>
     </div>
 </div>
 
 <script>
-let comandaParaExcluir = null;
+    let comandaParaExcluir = null;
 
-function imprimirComanda(comandaId) {
-    console.log('Função imprimirComanda chamada com comanda ID:', comandaId);
-    // Abrir em nova janela para impressão
-    window.open('/bar/reimprimir-comanda/' + comandaId + '/', '_blank', 'width=400,height=600');
-}
+    function imprimirComanda(comandaId) {
+        console.log('Função imprimirComanda chamada com comanda ID:', comandaId);
+        // Abrir em nova janela para impressão
+        window.open('/bar/reimprimir-comanda/' + comandaId + '/', '_blank', 'width=400,height=600');
+    }
 
-function excluirComanda(comandaId, numeroMesa) {
-    try {
-        console.log('=== EXCLUIR COMANDA CHAMADA ===');
-        console.log('Comanda ID:', comandaId, 'Mesa:', numeroMesa);
-        
-        // Definir dados da comanda para exclusão
-        comandaParaExcluir = {
-            id: comandaId,
-            numeroMesa: numeroMesa
-        };
-        
-        // Atualizar modal com número da mesa
-        const mesaSpan = document.getElementById('modal-mesa-numero');
-        if (mesaSpan) {
-            mesaSpan.textContent = numeroMesa;
-        } else {
-            console.error('Elemento modal-mesa-numero não encontrado');
-        }
-        
-        // Mostrar modal
-        const modal = document.getElementById('senhaModal');
-        if (modal) {
-            modal.style.display = 'flex';
-            console.log('Modal mostrado');
-            // Focar no campo de senha
-            const senhaInput = document.getElementById('senhaInput');
-            if (senhaInput) {
-                senhaInput.focus();
+    function excluirComanda(comandaId, numeroMesa) {
+        try {
+            console.log('=== EXCLUIR COMANDA CHAMADA ===');
+            console.log('Comanda ID:', comandaId, 'Mesa:', numeroMesa);
+
+            comandaParaExcluir = {
+                id: comandaId,
+                numeroMesa: numeroMesa
+            };
+
+            const mesaSpan = document.getElementById('modal-mesa-numero');
+            if (mesaSpan) mesaSpan.textContent = numeroMesa;
+
+            const modal = document.getElementById('senhaModal');
+            if (modal) {
+                modal.style.display = 'flex';
+                const senhaInput = document.getElementById('senhaInput');
+                if (senhaInput) senhaInput.focus();
             }
-        } else {
-            alert('ERRO: Modal não encontrado!');
-            console.error('Modal senhaModal não encontrado');
+        } catch (error) {
+            console.error('Erro na função excluirComanda:', error);
+            alert('Erro ao tentar excluir comanda: ' + error.message);
         }
-    } catch (error) {
-        console.error('Erro na função excluirComanda:', error);
-        alert('Erro ao tentar excluir comanda: ' + error.message);
-    }
-}
-
-function fecharModalSenha() {
-    document.getElementById('senhaModal').style.display = 'none';
-    comandaParaExcluir = null;
-}
-
-function confirmarExclusao() {
-    const senha = document.getElementById('senhaInput').value;
-    if (!senha) {
-        alert('Por favor, digite sua senha.');
-        document.getElementById('senhaInput').focus();
-        return;
     }
 
-    if (!comandaParaExcluir) {
-        alert('Erro: Dados da comanda não encontrados. Por favor, recarregue a página.');
-        return;
+    function fecharModalSenha() {
+        document.getElementById('senhaModal').style.display = 'none';
+        comandaParaExcluir = null;
     }
 
-    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
-    if (!csrfToken || !csrfToken.value) {
-        alert('Erro de segurança (CSRF). Por favor, recarregue a página.');
-        return;
-    }
-
-    const formData = new FormData();
-    formData.append('senha', senha);
-
-    fetch('/bar/excluir-comanda/' + comandaParaExcluir.id + '/', {
-        method: 'POST',
-        body: formData,
-        headers: { 'X-CSRFToken': csrfToken.value }
-    })
-    .then(response => response.json().then(data => {
-        if (!response.ok) {
-            // Cria um erro para ser pego pelo .catch()
-            const error = new Error(data.error || 'Ocorreu um erro no servidor.');
-            throw error;
+    function confirmarExclusao() {
+        const senha = document.getElementById('senhaInput').value;
+        if (!senha) {
+            alert('Por favor, digite sua senha.');
+            return;
         }
-        return data; // Passa os dados de sucesso para o próximo .then()
-    }))
-    .then(data => {
-        // Sucesso na exclusão
-        alert(data.message || 'Comanda excluída com sucesso!');
-        fecharModalSenha();
-        location.reload();
-    })
-    .catch(error => {
-        // Falha na exclusão (senha errada, comanda não encontrada, etc.)
-        alert(error.message); // Mostra a mensagem de erro específica vinda do servidor
-        const senhaInput = document.getElementById('senhaInput');
-        senhaInput.value = ''; // Limpa o campo de senha
-        senhaInput.focus(); // Foca no campo para o usuário tentar novamente
+
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        const formData = new FormData();
+        formData.append('senha', senha);
+
+        fetch('/bar/excluir-comanda/' + comandaParaExcluir.id + '/', {
+            method: 'POST',
+            body: formData,
+            headers: { 'X-CSRFToken': csrfToken }
+        })
+            .then(response => response.json().then(data => {
+                if (!response.ok) throw new Error(data.error || 'Erro no servidor');
+                return data;
+            }))
+            .then(data => {
+                alert(data.message);
+                location.reload();
+            })
+            .catch(error => {
+                alert(error.message);
+                document.getElementById('senhaInput').value = '';
+            });
+    }
+
+    // Modal Events
+    document.getElementById('senhaModal').addEventListener('click', function (e) {
+        if (e.target === this) fecharModalSenha();
     });
-}
 
-// Fechar modal ao clicar fora
-document.getElementById('senhaModal').addEventListener('click', function(e) {
-    if (e.target === this) {
-        fecharModalSenha();
-    }
-});
-
-// Fechar modal com tecla ESC
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape' && document.getElementById('senhaModal').style.display === 'flex') {
-        fecharModalSenha();
-    }
-    
-    // Confirmar com Enter
-    if (e.key === 'Enter' && document.getElementById('senhaModal').style.display === 'flex') {
-        confirmarExclusao();
-    }
-});
-
-// Debug: mostrar modal ao carregar página (remover depois dos testes)
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('=== PÁGINA CARREGADA ===');
-    console.log('Modal disponível:', document.getElementById('senhaModal') !== null);
-    
-    // Verificar botões
-    const botoesExcluir = document.querySelectorAll('.btn-excluir-relatorio');
-    const botoesImprimir = document.querySelectorAll('.btn-imprimir-relatorio');
-    console.log('Botões excluir encontrados:', botoesExcluir.length);
-    console.log('Botões imprimir encontrados:', botoesImprimir.length);
-});
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && document.getElementById('senhaModal').style.display === 'flex') fecharModalSenha();
+        if (e.key === 'Enter' && document.getElementById('senhaModal').style.display === 'flex') confirmarExclusao();
+    });
 </script>
 {% endblock %}
