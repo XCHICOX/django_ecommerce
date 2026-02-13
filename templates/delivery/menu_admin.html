@@ -223,6 +223,33 @@
                 {% endfor %}
             </ul>
         </div>
+
+        <div class="admin-card">
+            <h3>Adicionar Bairro e Taxa de Entrega</h3>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="form_type" value="zone">
+                {{ zone_form.as_p }}
+                <button type="submit" class="save-btn-icon" title="Salvar Bairro"><span class="material-icons">save</span></button>
+            </form>
+            <hr>
+            <h4>Bairros Cadastrados</h4>
+            <ul class="item-list">
+                {% for zone in delivery_zones %}
+                    <li>
+                        <span>{{ zone.neighborhood }} - <strong>R$ {{ zone.delivery_fee|floatformat:2 }}</strong></span>
+                        <form method="post" onsubmit="return confirm('Excluir este bairro?');" style="margin: 0;">
+                            {% csrf_token %}
+                            <input type="hidden" name="form_type" value="delete_zone">
+                            <input type="hidden" name="zone_id" value="{{ zone.id }}">
+                            <button type="submit" class="delete-icon-btn" title="Excluir"><span class="material-icons">delete</span></button>
+                        </form>
+                    </li>
+                {% empty %}
+                    <li>Nenhum bairro cadastrado.</li>
+                {% endfor %}
+            </ul>
+        </div>
     </div>
 </div>
 

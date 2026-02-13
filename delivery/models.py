@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 from shop.models import Tenant # Reutiliza o modelo Tenant do app principal
 
 class DeliveryCategory(models.Model):

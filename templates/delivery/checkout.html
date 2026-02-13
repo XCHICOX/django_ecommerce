@@ -85,7 +85,7 @@
                         {% if item.optionals %}
                             <ul class="combo-choices-list">
                                 {% for opt in item.optionals %}
-                                    <li>+ {{ opt.name }} (R$ {{ opt.price|floatformat:2 }})</li>
+                                    <li>* {{ opt.name }} (R$ {{ opt.price|floatformat:2 }})</li>
                                 {% endfor %}
                             </ul>
                         {% endif %}

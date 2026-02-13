@@ -11,7 +11,7 @@ from .forms import ProductForm, ProductImageFormSet, SettingsForm, StorefrontSet
 import mercadopago
 from django.db.models import Case, When, Value, IntegerField
 
-@login_required
+@login_required(login_url='login')
 def inicio_view(request):
     """
     Exibe o painel do lojista com pedidos concluídos e carrinhos ativos.
@@ -49,7 +49,7 @@ def inicio_view(request):
     }
     return render(request, 'inicio.html', context)
 
-@login_required
+@login_required(login_url='login')
 def product_view(request):
     # Lógica para lidar com o envio do formulário (POST)
     if request.method == 'POST':
@@ -102,7 +102,7 @@ def product_view(request):
     context = {'form': form, 'formset': formset, 'produtos': lista_produtos} # Passa o formset para o template
     return render(request, 'produtos.html', context)
 
-@login_required
+@login_required(login_url='login')
 def edit_product_view(request, product_id):
     try:
         tenant = request.user.tenant
@@ -141,7 +141,7 @@ def edit_product_view(request, product_id):
         'extra_data': product.extra_data
     })
 
-@login_required
+@login_required(login_url='login')
 def delete_product_view(request, product_id):
     try:
         tenant = request.user.tenant
@@ -157,7 +157,7 @@ def delete_product_view(request, product_id):
 
     return redirect('shop:produtos')
 
-@login_required
+@login_required(login_url='login')
 def get_category_fields(request, category_id):
     try:
         category = Category.objects.get(id=category_id)
@@ -166,7 +166,7 @@ def get_category_fields(request, category_id):
     except Category.DoesNotExist:
         return JsonResponse({'fields': []})
 
-@login_required
+@login_required(login_url='login')
 def storefront_settings_view(request):
     try:
         tenant = request.user.tenant
@@ -559,7 +559,7 @@ def client_orders_view(request):
 
     return render(request, 'client_orders.html', {'orders': orders, 'phone': phone, 'current_tenant': current_tenant})
 
-@login_required
+@login_required(login_url='login')
 def settings_view(request):
     """
     Página de configurações para o tenant (lojista).
@@ -713,7 +713,7 @@ def update_cart_item_view(request, item_id):
 
     return redirect('shop:view_cart')
 
-@login_required
+@login_required(login_url='login')
 def delete_cart_view(request, cart_id):
     """
     Permite ao lojista excluir um carrinho ativo do painel.

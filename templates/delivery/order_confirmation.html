@@ -50,7 +50,7 @@
 
         {% if order.tenant.whatsapp_number %}
             <a href="https://wa.me/55{{ order.tenant.whatsapp_number|cut:' '|cut:'-'|cut:'('|cut:')' }}?text={{ whatsapp_message }}" target="_blank" class="whatsapp-btn">
-                Acompanhe seu pedido pelo WhatsApp
+                Acompanhe seu pedido #{{ order.id }} pelo WhatsApp
             </a>
         {% endif %}
     </div>

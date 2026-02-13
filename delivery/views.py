@@ -5,15 +5,15 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
 from django.utils import timezone
-from datetime import timedelta
-import datetime
+from datetime import timedelta, datetime
 from django.db.models import Sum, Count, Max
 from django.db.models.functions import TruncDate
+from urllib.parse import quote
 from shop.models import Tenant # Importamos o Tenant do app shop (Core)
 from .models import DeliveryCategory, MenuItem, DeliveryZone, Combo, DeliveryOrder, DeliveryOrderItem, DeliveryOptional, MenuOnlineImage
 from .forms import DeliveryCategoryForm, MenuItemForm, DeliveryZoneForm, ComboForm, ComboSlotFormSet, DeliveryOrderForm, DeliveryOptionalForm
 
-@login_required
+@login_required(login_url='login')
 def delivery_dashboard(request):
     try:
         tenant = request.user.tenant
@@ -24,7 +24,7 @@ def delivery_dashboard(request):
     # Por enquanto, renderiza o template base do delivery
     return render(request, 'delivery_inicio.html')
 
-@login_required
+@login_required(login_url='login')
 def toggle_store_status(request):
     try:
         tenant = request.user.tenant
@@ -36,7 +36,7 @@ def toggle_store_status(request):
         messages.error(request, 'Você não tem uma loja associada.')
     return redirect('delivery:dashboard')
 
-@login_required
+@login_required(login_url='login')
 def menu_admin_view(request):
     try:
         tenant = request.user.tenant
@@ -127,7 +127,7 @@ def menu_admin_view(request):
     }
     return render(request, 'delivery/menu_admin.html', context)
 
-@login_required
+@login_required(login_url='login')
 def combo_admin_view(request):
     try:
         tenant = request.user.tenant
@@ -173,10 +173,25 @@ def customer_menu_view(request, tenant_slug):
     combos = Combo.objects.filter(tenant=tenant, is_available=True).prefetch_related('slots__allowed_category')
     menu_items = MenuItem.objects.filter(tenant=tenant, is_available=True).select_related('category')
 
+    # Ordena combos por caracteres especiais/números primeiro, depois alfabéticamente
+    def sort_key(combo):
+        name = combo.name.strip()
+        if not name:
+            return ('z', '')  # Coloca vazio no final
+        
+        first_char = name[0]
+        is_special_or_number = not first_char.isalpha()
+        
+        # Tupla para ordenação: (é alfabético, nome normalizado)
+        # É alfabético? 1 (sim) ou 0 (não) - números e especiais vêm primeiro
+        return (is_special_or_number is False, name.lower())
+    
+    combos = sorted(combos, key=sort_key)
+
     # Prepara dados em formato JSON para o JavaScript do modal de combos
     combos_list_for_js = []
     for combo in combos:
-        c = {'id': combo.id, 'name': combo.name, 'slots': []}
+        c = {'id': combo.id, 'name': combo.name, 'price': str(combo.price), 'description': combo.description or '', 'image': combo.image.url if combo.image else None, 'slots': []}
         for slot in combo.slots.all():
             c['slots'].append({'allowed_category': {'id': slot.allowed_category.id, 'name': slot.allowed_category.name}})
         combos_list_for_js.append(c)
@@ -327,7 +342,8 @@ def delivery_checkout_view(request, tenant_slug):
             for cart_item in cart_items:
                 if cart_item['is_combo']:
                     # Para combos, salva o nome do combo e as escolhas
-                    item_name_with_choices = f"{cart_item['name']} ({', '.join([c.name for c in cart_item['choices']])})"
+                    choices_formatted = "\n".join([f"* {c.category.name}: {c.name}" for c in cart_item['choices']])
+                    item_name_with_choices = f"{cart_item['name']}\n{choices_formatted}"
                     DeliveryOrderItem.objects.create(
                         order=order, 
                         item_name=item_name_with_choices, 
@@ -339,7 +355,7 @@ def delivery_checkout_view(request, tenant_slug):
                     # Para itens normais
                     item_name_desc = cart_item['name']
                     if cart_item.get('optionals'):
-                        opts_str = ", ".join([f"+{opt.name}" for opt in cart_item['optionals']])
+                        opts_str = ", ".join([f"*{opt.name}" for opt in cart_item['optionals']])
                         item_name_desc += f" ({opts_str})"
 
                     DeliveryOrderItem.objects.create(
@@ -371,19 +387,42 @@ def delivery_order_confirmation_view(request, order_id):
     order = get_object_or_404(DeliveryOrder, id=order_id)
     
     items_list = [f"{item.quantity}x {item.item_name}" for item in order.items.all()]
-    items_text = "%0A".join(items_list)
+    items_text = "\n".join(items_list)
+
+    address_full = f"{order.delivery_address}"
+    if order.delivery_zone:
+        address_full += f" - {order.delivery_zone.neighborhood}"
+
+    payment_full = order.get_payment_method_display()
+    if order.payment_method == 'dinheiro' and order.change_for:
+        payment_full += f" (Troco para R$ {order.change_for:.2f})"
 
     whatsapp_message = (
-        f"Olá, gostaria de acompanhar meu pedido *#{order.id}*!%0A%0A"
-        f"*Resumo:*%0A{items_text}%0A"
-        f"--------------------%0A"
-        f"*Total:* R$ {order.final_total:.2f}"
-    ).replace(' ', '%20')
+        f"*Pedido #{order.id} Realizado!*\n"
+        f"------------------------------\n"
+        f"*Cliente:* {order.customer_name}\n"
+        f"*Telefone:* {order.customer_whatsapp}\n"
+        f"*Endereço:* {address_full}\n"
+        f"------------------------------\n"
+        f"*Itens:*\n{items_text}\n"
+    )
+
+    if order.observations:
+        whatsapp_message += f"*Obs:* {order.observations}\n"
+
+    whatsapp_message += (
+        f"------------------------------\n"
+        f"*Taxa Entrega:* R$ {order.delivery_fee:.2f}\n"
+        f"*Total:* R$ {order.final_total:.2f}\n"
+        f"*Pagamento:* {payment_full}"
+    )
+
+    whatsapp_message = quote(whatsapp_message)
 
     context = {'order': order, 'whatsapp_message': whatsapp_message}
     return render(request, 'delivery/order_confirmation.html', context)
 
-@login_required
+@login_required(login_url='login')
 def orders_list_view(request):
     try:
         tenant = request.user.tenant
@@ -395,14 +434,16 @@ def orders_list_view(request):
     
     orders = DeliveryOrder.objects.filter(tenant=tenant)
 
+    today = datetime.now().date()
+
     if filter_date == 'today':
-        orders = orders.filter(created_at__date=timezone.now().date())
+        orders = orders.filter(created_at__date=today)
+
     elif filter_date == 'yesterday':
-        yesterday = timezone.now().date() - timedelta(days=1)
-        orders = orders.filter(created_at__date=yesterday)
+        orders = orders.filter(created_at__date=today - timedelta(days=1))
+
     elif filter_date == 'week':
-        week_ago = timezone.now().date() - timedelta(days=7)
-        orders = orders.filter(created_at__date__gte=week_ago)
+        orders = orders.filter(created_at__date__gte=today - timedelta(days=7))
     
     orders = orders.order_by('-id')
     
@@ -458,7 +499,7 @@ def repeat_order(request, tenant_slug, order_id):
     request.session.modified = True # Força o salvamento da sessão
     return redirect('delivery:checkout', tenant_slug=tenant_slug)
 
-@login_required
+@login_required(login_url='login')
 def get_latest_order_id(request):
     """Retorna o ID do pedido mais recente para verificação via AJAX."""
     try:
@@ -469,7 +510,7 @@ def get_latest_order_id(request):
     except:
         return JsonResponse({'latest_id': 0})
 
-@login_required
+@login_required(login_url='login')
 def delete_combo_view(request, combo_id):
     if request.method == 'POST':
         try:
@@ -490,7 +531,7 @@ def delete_combo_view(request, combo_id):
     
     return redirect('delivery:combo_admin')
 
-@login_required
+@login_required(login_url='login')
 def toggle_combo_availability(request, combo_id):
     if request.method == 'POST':
         try:
@@ -508,7 +549,7 @@ def toggle_combo_availability(request, combo_id):
     
     return redirect('delivery:combo_admin')
 
-@login_required
+@login_required(login_url='login')
 def delete_order_view(request, order_id):
     if request.method == 'POST':
         try:
@@ -528,7 +569,7 @@ def delete_order_view(request, order_id):
     
     return redirect('delivery:orders_list')
 
-@login_required
+@login_required(login_url='login')
 def delivery_reports_view(request):
     try:
         tenant = request.user.tenant
@@ -541,14 +582,15 @@ def delivery_reports_view(request):
 
     # Define padrão: últimos 30 dias se não informado
     if not start_date_str:
-        start_date = timezone.now().date() - timedelta(days=30)
+        start_date = datetime.now().date() - timedelta(days=30)
     else:
-        start_date = datetime.datetime.strptime(start_date_str, '%Y-%m-%d').date()
+        start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
 
     if not end_date_str:
-        end_date = timezone.now().date()
+        end_date = datetime.now().date()
+
     else:
-        end_date = datetime.datetime.strptime(end_date_str, '%Y-%m-%d').date()
+        end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
     # Busca pedidos (excluindo cancelados) no intervalo
     orders = DeliveryOrder.objects.filter(
@@ -588,7 +630,7 @@ def delivery_reports_view(request):
     }
     return render(request, 'delivery/reports.html', context)
 
-@login_required
+@login_required(login_url='login')
 def delivery_pos_view(request):
     try:
         tenant = request.user.tenant
@@ -624,7 +666,7 @@ def delivery_pos_view(request):
                             
                             name_desc = db_item.name
                             if opts:
-                                name_desc += " (" + ", ".join([f"+{o.name}" for o in opts]) + ")"
+                                name_desc += " (" + ", ".join([f"*{o.name}" for o in opts]) + ")"
                             
                             final_items.append({
                                 'name': name_desc,
@@ -639,9 +681,9 @@ def delivery_pos_view(request):
                             items_total += subtotal
                             
                             choice_ids = item.get('choices', [])
-                            choices = MenuItem.objects.filter(id__in=choice_ids)
-                            choice_names = ", ".join([c.name for c in choices])
-                            name_desc = f"{db_combo.name} ({choice_names})"
+                            choices = MenuItem.objects.filter(id__in=choice_ids).select_related('category')
+                            choice_names = "\n".join([f"* {c.category.name}: {c.name}" for c in choices])
+                            name_desc = f"{db_combo.name}\n{choice_names}"
                             
                             final_items.append({
                                 'name': name_desc,
@@ -700,7 +742,7 @@ def delivery_pos_view(request):
     }
     return render(request, 'delivery/pos.html', context)
 
-@login_required
+@login_required(login_url='login')
 def menu_online_view(request):
     try:
         tenant = request.user.tenant

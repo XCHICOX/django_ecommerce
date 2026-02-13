@@ -11,7 +11,7 @@ from shop.models import Tenant
 from .models import BarCategory, BarMenuItem, BarComanda, BarComandaItem
 from .forms import BarCategoryForm, BarMenuItemForm
 
-@login_required
+@login_required(login_url='login')
 def bar_dashboard(request):
     try:
         tenant = request.user.tenant
@@ -19,7 +19,7 @@ def bar_dashboard(request):
         return render(request, 'error.html', {'message': 'Você não tem uma loja associada.'})
     return render(request, 'bar/bar_inicio.html')
 
-@login_required
+@login_required(login_url='login')
 def toggle_bar_status(request):
     try:
         tenant = request.user.tenant
@@ -31,7 +31,7 @@ def toggle_bar_status(request):
         messages.error(request, 'Você não tem um bar associado.')
     return redirect('bar:dashboard')
 
-@login_required
+@login_required(login_url='login')
 def menu_admin_view(request):
     try:
         tenant = request.user.tenant
@@ -99,7 +99,7 @@ def bar_reports_view(request):
     
     return render(request, 'bar/reports.html', context)
 
-@login_required
+@login_required(login_url='login')
 def mesas_view(request):
     try:
         tenant = request.user.tenant
@@ -140,7 +140,7 @@ def mesas_view(request):
     }
     return render(request, 'bar/mesas.html', context)
 
-@login_required
+@login_required(login_url='login')
 def comanda_view(request, numero_mesa):
     try:
         tenant = request.user.tenant
@@ -248,7 +248,7 @@ def comanda_view(request, numero_mesa):
     }
     return render(request, 'bar/comanda.html', context)
 
-@login_required
+@login_required(login_url='login')
 def salvar_comanda(request, numero_mesa):
     try:
         tenant = request.user.tenant
@@ -265,6 +265,7 @@ def salvar_comanda(request, numero_mesa):
         # Verificar se o usuário selecionou gorjeta via GET ou POST
         incluir_gorjeta = request.GET.get('gorjeta_10') == 'on' or request.POST.get('gorjeta_10') == 'on'
         
+
         # Calcular total temporário com ou sem gorjeta
         total_base = sum(item.subtotal for item in comanda.itens.all())
         total_com_gorjeta = total_base * Decimal('1.1') if incluir_gorjeta else total_base
@@ -301,7 +302,7 @@ def salvar_comanda(request, numero_mesa):
         messages.error(request, f'Não há comanda aberta para a Mesa {numero_mesa}!')
         return redirect('bar:mesas')
 
-@login_required
+@login_required(login_url='login')
 def imprimir_comanda(request, numero_mesa):
     try:
         tenant = request.user.tenant
@@ -355,7 +356,7 @@ def imprimir_comanda(request, numero_mesa):
         messages.error(request, f'Não há comanda aberta para a Mesa {numero_mesa}!')
         return redirect('bar:mesas')
 
-@login_required
+@login_required(login_url='login')
 def reimprimir_comanda(request, comanda_id):
     try:
         tenant = request.user.tenant
@@ -392,7 +393,7 @@ def reimprimir_comanda(request, comanda_id):
 
     return render(request, 'bar/imprimir_comanda.html', context)
 
-@login_required
+@login_required(login_url='login')
 def excluir_comanda(request, comanda_id):
     try:
         tenant = request.user.tenant
@@ -431,7 +432,7 @@ def excluir_comanda(request, comanda_id):
     except Exception as e:
         return JsonResponse({'error': f'Erro ao excluir comanda: {str(e)}'}, status=500)
 
-@login_required
+@login_required(login_url='login')
 def fechar_comanda(request, numero_mesa):
     try:
         tenant = request.user.tenant
@@ -463,7 +464,7 @@ def fechar_comanda(request, numero_mesa):
         messages.error(request, f'Não há comanda aberta para a Mesa {numero_mesa}!')
         return redirect('bar:mesas')
 
-@login_required
+@login_required(login_url='login')
 def configuracoes_view(request):
     try:
         tenant = request.user.tenant

@@ -12,15 +12,17 @@
         gap: 20px;
         margin-top: 20px;
     }
+
     .order-card {
         background-color: #fff;
         border: 1px solid #e0e0e0;
         border-radius: 8px;
         padding: 20px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
         display: flex;
         flex-direction: column;
     }
+
     .order-header {
         display: flex;
         justify-content: space-between;
@@ -29,31 +31,107 @@
         padding-bottom: 10px;
         margin-bottom: 10px;
     }
-    .order-id { font-weight: 700; font-size: 1.1rem; color: #333; }
-    .order-status { font-size: 0.9rem; padding: 3px 8px; background-color: #e2e6ea; border-radius: 4px; }
-    
-    .customer-info { margin-bottom: 15px; font-size: 0.9rem; color: #555; }
-    .customer-info p { margin: 3px 0; }
-    
-    .order-items { list-style: none; padding: 0; margin: 0 0 15px 0; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-    .order-items li { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.95rem; }
-    
-    .order-total { font-weight: 700; font-size: 1.1rem; text-align: right; color: #28a745; margin-bottom: 15px; }
-    
-    .actions { display: flex; gap: 10px; margin-top: auto; }
-    .btn { flex: 1; padding: 10px; text-align: center; border-radius: 5px; text-decoration: none; font-weight: 600; cursor: pointer; border: none; font-size: 0.9rem; display: flex; justify-content: center; align-items: center; }
-    .btn-whatsapp { background-color: #25D366; color: white; }
-    .btn-print { background-color: #333; color: white; }
-    .btn-delivery { background-color: #007bff; color: white; }
-    .btn-delete { background-color: #dc3545; color: white; }
-    .btn:hover { opacity: 0.9; }
+
+    .order-id {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: #333;
+    }
+
+    .order-status {
+        font-size: 0.9rem;
+        padding: 3px 8px;
+        background-color: #e2e6ea;
+        border-radius: 4px;
+    }
+
+    .customer-info {
+        margin-bottom: 15px;
+        font-size: 0.9rem;
+        color: #555;
+    }
+
+    .customer-info p {
+        margin: 3px 0;
+    }
+
+    .order-items {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 15px 0;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 10px;
+    }
+
+    .order-items li {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 5px;
+        font-size: 0.95rem;
+    }
+
+    .order-total {
+        font-weight: 700;
+        font-size: 1.1rem;
+        text-align: right;
+        color: #28a745;
+        margin-bottom: 15px;
+    }
+
+    .actions {
+        display: flex;
+        gap: 10px;
+        margin-top: auto;
+    }
+
+    .btn {
+        flex: 1;
+        padding: 10px;
+        text-align: center;
+        border-radius: 5px;
+        text-decoration: none;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        font-size: 0.9rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .btn-whatsapp {
+        background-color: #25D366;
+        color: white;
+    }
+
+    .btn-print {
+        background-color: #333;
+        color: white;
+    }
+
+    .btn-delivery {
+        background-color: #007bff;
+        color: white;
+    }
+
+    .btn-delete {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .btn:hover {
+        opacity: 0.9;
+    }
 
     /* Área oculta usada apenas para gerar o cupom de impressão */
-    .printable-ticket { display: none; }
+    .printable-ticket {
+        display: none;
+    }
 
     /* Estilo para novos pedidos (destaque escuro) */
     .order-card.new-order {
-        background-color: #dcdcdc; /* Fundo cinza para destacar */
+        background-color: #dcdcdc;
+        /* Fundo cinza para destacar */
         border: 2px solid #888;
     }
 </style>
@@ -61,7 +139,8 @@
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
     <h2 style="margin: 0;">Pedidos Recebidos</h2>
     <form method="get">
-        <select name="filter_date" onchange="this.form.submit()" style="padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-size: 1rem; background-color: #fff; cursor: pointer;">
+        <select name="filter_date" onchange="this.form.submit()"
+            style="padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-size: 1rem; background-color: #fff; cursor: pointer;">
             <option value="today" {% if filter_date == 'today' %}selected{% endif %}>📅 Hoje</option>
             <option value="yesterday" {% if filter_date == 'yesterday' %}selected{% endif %}>⏮️ Ontem</option>
             <option value="week" {% if filter_date == 'week' %}selected{% endif %}>📅 Últimos 7 dias</option>
@@ -71,133 +150,142 @@
 </div>
 
 <div id="orders-container">
-{% if not orders %}
+    {% if not orders %}
     <div style="padding: 40px; text-align: center; background: #fff; border-radius: 8px;">
         <p>Nenhum pedido recebido ainda.</p>
     </div>
-{% else %}
+    {% else %}
     <div class="orders-grid">
         {% for order in orders %}
-            <div class="order-card" data-order-id="{{ order.id }}">
-                <div class="order-header">
-                    <span class="order-id">#{{ order.id }}</span>
-                    <span class="order-status">{{ order.created_at|date:"d/m H:i" }}</span>
-                </div>
-                
-                <div class="customer-info">
-                    <p><strong>{{ order.customer_name }}</strong></p>
-                    <p>📞 {{ order.customer_whatsapp }}</p>
-                    <p>📍 {{ order.delivery_address }}</p>
-                    <p>🏘️ {{ order.delivery_zone.neighborhood }}</p>
-                    {% if order.observations %}
-                        <p style="color: #c9302c; margin-top: 5px;">⚠ Obs: {{ order.observations }}</p>
-                    {% endif %}
-                </div>
+        <div class="order-card" data-order-id="{{ order.id }}">
+            <div class="order-header">
+                <span class="order-id">#{{ order.id }}</span>
+                <span class="order-status">{{ order.created_at|date:"d/m H:i" }}</span>
+            </div>
 
-                <ul class="order-items">
-                    {% for item in order.items.all %}
-                        <li>
-                            <span>{{ item.quantity }}x {{ item.item_name }}</span>
-                        </li>
-                    {% endfor %}
-                </ul>
+            <div class="customer-info">
+                <p><strong>{{ order.customer_name }}</strong></p>
+                <p>📞 {{ order.customer_whatsapp }}</p>
+                <p>📍 {{ order.delivery_address }}</p>
+                <p>🏘️ {{ order.delivery_zone.neighborhood }}</p>
+                {% if order.observations %}
+                <p style="color: #c9302c; margin-top: 5px;">⚠ Obs: {{ order.observations }}</p>
+                {% endif %}
+            </div>
 
-                <div class="order-total">
-                    Total: R$ {{ order.final_total|floatformat:2 }}
-                </div>
-                
-                <div style="font-size: 0.85rem; color: #666; margin-bottom: 15px;">
-                    Pagamento: <strong>{{ order.get_payment_method_display }}</strong>
-                    {% if order.change_for %} (Troco p/ {{ order.change_for }}){% endif %}
-                </div>
+            <ul class="order-items">
+                {% for item in order.items.all %}
+                <li>
+                    <span>{{ item.quantity }}x {{ item.item_name|linebreaksbr }}</span>
+                </li>
+                {% endfor %}
+            </ul>
 
-                <div class="actions">
-                    <a href="https://wa.me/55{{ order.customer_whatsapp|cut:' '|cut:'-'|cut:'('|cut:')' }}?text=Olá {{ order.customer_name }}, pedido %23{{ order.id }}:%0A{% for item in order.items.all %}- {{ item.quantity }}x {{ item.item_name }}%0A{% endfor %}%0ATotal: R$ {{ order.final_total|floatformat:2 }}%0A%0AAssim que o motoboy sair lhe avisaremos por aqui." target="_blank" class="btn btn-whatsapp" title="Confirmar Pedido">
-                        <span class="material-icons">chat</span>
-                    </a>
-                    <button onclick="printOrder('{{ order.id }}')" class="btn btn-print" title="Imprimir">
-                        <span class="material-icons">print</span>
+            <div class="order-total">
+                Total: R$ {{ order.final_total|floatformat:2 }}
+            </div>
+
+            <div style="font-size: 0.85rem; color: #666; margin-bottom: 15px;">
+                Pagamento: <strong>{{ order.get_payment_method_display }}</strong>
+                {% if order.change_for %} (Troco p/ {{ order.change_for }}){% endif %}
+            </div>
+
+            <div class="actions">
+                <a href="https://wa.me/55{{ order.customer_whatsapp|cut:' '|cut:'-'|cut:'('|cut:')' }}?text=Pedido %23{{ order.id }} Recebido!%0A------------------------------%0ACliente: {{ order.customer_name|urlencode }}%0ATelefone: {{ order.customer_whatsapp }}%0AEndereço: {{ order.delivery_address|urlencode }} - {{ order.delivery_zone.neighborhood|urlencode }}%0A------------------------------%0AItens:%0A{% for item in order.items.all %}{{ item.quantity }}x {{ item.item_name|urlencode }}%0A{% endfor %}{% if order.observations %}Obs: {{ order.observations|urlencode }}%0A{% endif %}------------------------------%0ATaxa Entrega: R$ {{ order.delivery_fee|floatformat:2 }}%0ATotal: R$ {{ order.final_total|floatformat:2 }}%0APagamento: {{ order.get_payment_method_display }}{% if order.change_for %} (Troco para {{ order.change_for|floatformat:2 }}){% endif %}%0A%0AAssim que o motoboy sair lhe avisaremos por aqui."
+                    target="_blank" class="btn btn-whatsapp" title="Confirmar Pedido">
+                    <span class="material-icons">chat</span>
+                </a>
+                <button onclick="printOrder('{{ order.id }}')" class="btn btn-print" title="Imprimir">
+                    <span class="material-icons">print</span>
+                </button>
+                <a href="https://wa.me/55{{ order.customer_whatsapp|cut:' '|cut:'-'|cut:'('|cut:')' }}?text=Olá {{ order.customer_name }}, seu pedido %23{{ order.id }} saiu para entrega! 🛵%0APor favor, fique no aguardo."
+                    target="_blank" class="btn btn-delivery" title="Avisar Entrega">
+                    <span class="material-icons">two_wheeler</span>
+                </a>
+                <form method="post" action="{% url 'delivery:delete_order' order.id %}"
+                    onsubmit="return confirm('Tem certeza que deseja excluir este pedido?');"
+                    style="flex: 1; display: flex;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-delete" title="Excluir Pedido">
+                        <span class="material-icons">delete</span>
                     </button>
-                    <a href="https://wa.me/55{{ order.customer_whatsapp|cut:' '|cut:'-'|cut:'('|cut:')' }}?text=Olá {{ order.customer_name }}, seu pedido %23{{ order.id }} saiu para entrega! 🛵%0APor favor, fique no aguardo." target="_blank" class="btn btn-delivery" title="Avisar Entrega">
-                        <span class="material-icons">two_wheeler</span>
-                    </a>
-                    <form method="post" action="{% url 'delivery:delete_order' order.id %}" onsubmit="return confirm('Tem certeza que deseja excluir este pedido?');" style="flex: 1; display: flex;">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-delete" title="Excluir Pedido">
-                            <span class="material-icons">delete</span>
-                        </button>
-                    </form>
-                </div>
+                </form>
+            </div>
 
-                <!-- Modelo do Cupom Fiscal (Oculto) -->
-                <div id="ticket-{{ order.id }}" class="printable-ticket">
-                    <div class="ticket-content">
-                        <center>
-                            <h3 style="margin: 0;">{{ order.tenant.name }}</h3>
-                            <p style="margin: 5px 0;">Pedido #{{ order.id }}</p>
-                            <p style="font-size: 16px;">{{ order.created_at|date:"d/m/Y H:i" }}</p>
-                        </center>
-                        <hr style="border-top: 1px dashed #000;">
-                        <p><strong>Cliente:</strong> {{ order.customer_name }}</p>
-                        <p><strong>Tel:</strong> {{ order.customer_whatsapp }}</p>
-                        <p><strong>End:</strong> {{ order.delivery_address }}</p>
-                        <p><strong>Bairro:</strong> {{ order.delivery_zone.neighborhood }}</p>
-                        {% if order.observations %}<p><strong>Obs:</strong> {{ order.observations }}</p>{% endif %}
-                        <hr style="border-top: 1px dashed #000;">
-                        <table style="width: 100%; text-align: left;">
-                            {% for item in order.items.all %}
-                            <tr>
-                                <td style="vertical-align: top;"><b>{{ item.quantity }}x</b></td>
-                                <td><b>{{ item.item_name }}</b></td>
-                                <td style="text-align: right;"><b>{{ item.price|floatformat:2 }}</b></td>
-                            </tr>
-                            {% endfor %}
-                        </table>
-                        <hr style="border-top: 1px dashed #000;">
-                        <p style="display: flex; justify-content: space-between;"><span>Entrega:</span> <span>{{ order.delivery_fee|floatformat:2 }}</span></p>
-                        <p style="display: flex; justify-content: space-between; font-weight: 900; font-size: 24px;"><span>TOTAL:</span> <span>R$ {{ order.final_total|floatformat:2 }}</span></p>
-                        <p>Pagamento: {{ order.get_payment_method_display }} {% if order.change_for %}(Troco: {{ order.change_for }}){% endif %}</p>
-                        <center><p style="margin-top: 10px;">Obrigado pela preferência!</p></center>
-                    </div>
+            <!-- Modelo do Cupom Fiscal (Oculto) -->
+            <div id="ticket-{{ order.id }}" class="printable-ticket">
+                <div class="ticket-content">
+                    <center>
+                        <h3 style="margin: 0;">{{ order.tenant.name }}</h3>
+                        <p style="margin: 5px 0;">Pedido #{{ order.id }}</p>
+                        <p style="font-size: 16px;">{{ order.created_at|date:"d/m/Y H:i" }}</p>
+                    </center>
+                    <hr style="border-top: 1px dashed #000;">
+                    <p><strong>Cliente:</strong> {{ order.customer_name }}</p>
+                    <p><strong>Tel:</strong> {{ order.customer_whatsapp }}</p>
+                    <p><strong>End:</strong> {{ order.delivery_address }}</p>
+                    <p><strong>Bairro:</strong> {{ order.delivery_zone.neighborhood }}</p>
+                    {% if order.observations %}<p><strong>Obs:</strong> {{ order.observations }}</p>{% endif %}
+                    <hr style="border-top: 1px dashed #000;">
+                    <table style="width: 100%; text-align: left;">
+                        {% for item in order.items.all %}
+                        <tr>
+                            <td style="vertical-align: top;"><b>{{ item.quantity }}x</b></td>
+                            <td><b>{{ item.item_name|linebreaksbr }}</b></td>
+                            <td style="text-align: right;"><b>{{ item.price|floatformat:2 }}</b></td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                    <hr style="border-top: 1px dashed #000;">
+                    <p style="display: flex; justify-content: space-between;"><span>Entrega:</span> <span>{{ order.delivery_fee|floatformat:2 }}</span></p>
+                    <p style="display: flex; justify-content: space-between; font-weight: 900; font-size: 24px;">
+                        <span>TOTAL:</span> <span>R$ {{ order.final_total|floatformat:2 }}</span>
+                    </p>
+                    <p>Pagamento: {{ order.get_payment_method_display }} {% if order.change_for %}(Troco: {{ order.change_for }}){% endif %}</p>
+                    <center>
+                        <p style="margin-top: 10px;">Obrigado pela preferência!</p>
+                    </center>
                 </div>
             </div>
+        </div>
         {% endfor %}
     </div>
-{% endif %}
+    {% endif %}
 </div>
 
 <script>
-function printOrder(orderId) {
-    const content = document.getElementById('ticket-' + orderId).innerHTML;
-    const win = window.open('', '', 'height=700,width=400');
-    
-    win.document.write('<html><head><title>Imprimir Pedido #' + orderId + '</title>');
-    win.document.write('<style>');
-    win.document.write('@page { size: 80mm auto; margin: 0; }');
-    win.document.write('body { width: 80mm; margin: 0; padding: 5px; font-family: "Courier New", monospace; font-size: 22px; color: #000; font-weight: 900; }');
-    win.document.write('h3 { font-weight: 900; font-size: 26px; }');
-    win.document.write('strong, b { font-weight: 900; }');
-    win.document.write('</style>');
-    win.document.write('</head><body>');
-    win.document.write(content);
-    win.document.write('</body></html>');
-    win.document.close();
-    win.focus();
-    setTimeout(() => { win.print(); win.close(); }, 250);
-}
+    function printOrder(orderId) {
+        const content = document.getElementById('ticket-' + orderId).innerHTML;
+        const win = window.open('', '', 'height=700,width=400');
+
+        win.document.write('<html><head><title>Imprimir Pedido #' + orderId + '</title>');
+        win.document.write('<style>');
+        win.document.write('@page { size: 80mm auto; margin: 0; }');
+        win.document.write('body { width: 80mm; margin: 0; padding: 5px; font-family: "Courier New", monospace; font-size: 22px; color: #000; font-weight: 900; }');
+        win.document.write('h3 { font-weight: 900; font-size: 26px; }');
+        win.document.write('strong, b { font-weight: 900; }');
+        win.document.write('</style>');
+        win.document.write('</head><body>');
+        win.document.write(content);
+        win.document.write('</body></html>');
+        win.document.close();
+        win.focus();
+        setTimeout(() => { win.print(); win.close(); }, 250);
+    }
 </script>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // ID do pedido mais recente carregado na tela
-    let currentLatestId = {{ latest_order_id|default:0 }};
+    document.addEventListener('DOMContentLoaded', function () {
+        // ID do pedido mais recente carregado na tela
+        let currentLatestId = {{ latest_order_id|default: 0
+    }};
     const checkUrl = "{% url 'delivery:get_latest_order_id' %}";
-    
+
     // Som de notificação (URL de um som curto)
     const notificationSound = new Audio("{% static 'sounds/aviso.mp3' %}");
 
     // Remove o destaque (volta a ficar branco) ao interagir com os botões
-    document.getElementById('orders-container').addEventListener('click', function(e) {
+    document.getElementById('orders-container').addEventListener('click', function (e) {
         const card = e.target.closest('.order-card');
         // Se clicou em um botão ou link dentro de um card novo
         if (card && card.classList.contains('new-order')) {
@@ -210,36 +298,36 @@ document.addEventListener('DOMContentLoaded', function() {
     // Verifica novos pedidos a cada 10 segundos
     setInterval(() => {
         fetch(checkUrl)
-        .then(response => response.json())
-        .then(data => {
-            // Se o ID que veio do servidor for maior que o que temos na tela
-            if (data.latest_id > currentLatestId) {
-                const oldLatestId = currentLatestId; // Salva o ID anterior para comparar
-                currentLatestId = data.latest_id; // Atualiza ID imediatamente
-                console.log("Novo pedido detectado!");
-                
-                notificationSound.play().catch(e => console.log("Erro ao tocar som (autoplay bloqueado?):", e));
+            .then(response => response.json())
+            .then(data => {
+                // Se o ID que veio do servidor for maior que o que temos na tela
+                if (data.latest_id > currentLatestId) {
+                    const oldLatestId = currentLatestId; // Salva o ID anterior para comparar
+                    currentLatestId = data.latest_id; // Atualiza ID imediatamente
+                    console.log("Novo pedido detectado!");
 
-                // Atualiza a lista de pedidos sem recarregar a página (mantém o som ativo)
-                fetch(window.location.href)
-                .then(response => response.text())
-                .then(html => {
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(html, 'text/html');
-                    const newContent = doc.getElementById('orders-container').innerHTML;
-                    document.getElementById('orders-container').innerHTML = newContent;
+                    notificationSound.play().catch(e => console.log("Erro ao tocar som (autoplay bloqueado?):", e));
 
-                    // Aplica o destaque apenas aos pedidos que chegaram agora
-                    const cards = document.querySelectorAll('.order-card');
-                    cards.forEach(card => {
-                        const orderId = parseInt(card.dataset.orderId);
-                        if (orderId > oldLatestId) {
-                            card.classList.add('new-order');
-                        }
-                    });
-                });
-            }
-        });
+                    // Atualiza a lista de pedidos sem recarregar a página (mantém o som ativo)
+                    fetch(window.location.href)
+                        .then(response => response.text())
+                        .then(html => {
+                            const parser = new DOMParser();
+                            const doc = parser.parseFromString(html, 'text/html');
+                            const newContent = doc.getElementById('orders-container').innerHTML;
+                            document.getElementById('orders-container').innerHTML = newContent;
+
+                            // Aplica o destaque apenas aos pedidos que chegaram agora
+                            const cards = document.querySelectorAll('.order-card');
+                            cards.forEach(card => {
+                                const orderId = parseInt(card.dataset.orderId);
+                                if (orderId > oldLatestId) {
+                                    card.classList.add('new-order');
+                                }
+                            });
+                        });
+                }
+            });
     }, 10000); // 10000 ms = 10 segundos
 
 });
