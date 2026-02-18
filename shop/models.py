@@ -47,9 +47,12 @@ class Tenant(models.Model):
         if not self.slug:
             self.slug = slugify(self.name)
         super().save(*args, **kwargs)
-
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        from django.urls import reverse
+        return reverse('vitrine', kwargs={'tenant_slug': self.slug})
 
 class Category(models.Model):
     name = models.CharField(max_length=100)
@@ -74,6 +77,10 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        from django.urls import reverse
+        return reverse('product_detail', kwargs={'tenant_slug': self.tenant.slug, 'product_id': self.id})
 
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')

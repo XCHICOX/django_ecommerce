@@ -20,8 +20,20 @@ from shop import views as shop_views
 from django.conf import settings
 from django.conf.urls.static import static
 
+from django.contrib.sitemaps.views import sitemap
+from shop.sitemaps import StaticViewSitemap, ProductSitemap, TenantSitemap, DeliveryMenuSitemap
+
+sitemaps = {
+    'static': StaticViewSitemap,
+    'products': ProductSitemap,
+    'tenants': TenantSitemap,
+    'delivery': DeliveryMenuSitemap,
+}
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
+    path('robots.txt', myproject_views.robots_txt),
     path('', myproject_views.index, name='index'),
     path('login/', myproject_views.login_view, name='login'),
     path('inicio/', shop_views.inicio_view, name='inicio'),
