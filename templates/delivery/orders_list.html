@@ -187,7 +187,7 @@
 
             <div style="font-size: 0.85rem; color: #666; margin-bottom: 15px;">
                 Pagamento: <strong>{{ order.get_payment_method_display }}</strong>
-                {% if order.change_for %} (Troco p/ {{ order.change_for }}){% endif %}
+                {% if order.change_for %} (Troco p/ R$ {{ order.change_for|floatformat:2 }}){% endif %}
             </div>
 
             <div class="actions">
@@ -237,13 +237,19 @@
                         {% endfor %}
                     </table>
                     <hr style="border-top: 1px dashed #000;">
-                    <p style="display: flex; justify-content: space-between;"><span>Entrega:</span> <span>{{
-                            order.delivery_fee|floatformat:2 }}</span></p>
+                    <p style="display: flex; justify-content: space-between;">
+                        <span>Entrega:</span>
+                        <span>R$ {{ order.delivery_fee|floatformat:2 }}</span>
+                    </p>
                     <p style="display: flex; justify-content: space-between; font-weight: 900; font-size: 24px;">
                         <span>TOTAL:</span> <span>R$ {{ order.final_total|floatformat:2 }}</span>
                     </p>
-                    <p>Pagamento: {{ order.get_payment_method_display }} {% if order.change_for %}(Troco: {{
-                        order.change_for }}){% endif %}</p>
+                    <p>
+                    Pagamento: {{ order.get_payment_method_display }}
+                    {% if order.change_for %}
+                    (Troco p/ R$ {{ order.change_for|floatformat:2 }})
+                    {% endif %}
+                    </p>
                     <center>
                         <p style="margin-top: 10px;">Obrigado pela preferência!</p>
                     </center>
@@ -258,7 +264,7 @@
 <script>
     function printOrder(orderId) {
         const content = document.getElementById('ticket-' + orderId).innerHTML;
-        const win = window.open('', '', 'height=700,width=400');
+        const win = window.open('', '_blank');
 
         win.document.write('<html><head><title>Imprimir Pedido #' + orderId + '</title>');
         win.document.write('<style>');
@@ -275,62 +281,93 @@
         setTimeout(() => { win.print(); win.close(); }, 250);
     }
 </script>
-
+{{ latest_order_id|json_script:"latest-order-id" }}
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // ID do pedido mais recente carregado na tela
-        let currentLatestId = {{ latest_order_id|default: 0
-    }};
-    const checkUrl = "{% url 'delivery:get_latest_order_id' %}";
+document.addEventListener('DOMContentLoaded', function () {
 
-    // Som de notificação (URL de um som curto)
+    // ===== Obtém ID do último pedido de forma segura =====
+    let currentLatestId = JSON.parse(
+        document.getElementById('latest-order-id').textContent
+    );
+
+    const checkUrl = "{% url 'delivery:get_latest_order_id' %}";
     const notificationSound = new Audio("{% static 'sounds/aviso.mp3' %}");
 
-    // Remove o destaque (volta a ficar branco) ao interagir com os botões
-    document.getElementById('orders-container').addEventListener('click', function (e) {
-        const card = e.target.closest('.order-card');
-        // Se clicou em um botão ou link dentro de um card novo
-        if (card && card.classList.contains('new-order')) {
-            if (e.target.closest('a') || e.target.closest('button')) {
-                card.classList.remove('new-order');
-            }
-        }
-    });
+    const ordersContainer = document.getElementById('orders-container');
 
-    // Verifica novos pedidos a cada 10 segundos
-    setInterval(() => {
-        fetch(checkUrl)
-            .then(response => response.json())
-            .then(data => {
-                // Se o ID que veio do servidor for maior que o que temos na tela
-                if (data.latest_id > currentLatestId) {
-                    const oldLatestId = currentLatestId; // Salva o ID anterior para comparar
-                    currentLatestId = data.latest_id; // Atualiza ID imediatamente
-                    console.log("Novo pedido detectado!");
+    // ===== Remove destaque ao clicar =====
+    if (ordersContainer) {
+        ordersContainer.addEventListener('click', function (e) {
+            const card = e.target.closest('.order-card');
 
-                    notificationSound.play().catch(e => console.log("Erro ao tocar som (autoplay bloqueado?):", e));
-
-                    // Atualiza a lista de pedidos sem recarregar a página (mantém o som ativo)
-                    fetch(window.location.href)
-                        .then(response => response.text())
-                        .then(html => {
-                            const parser = new DOMParser();
-                            const doc = parser.parseFromString(html, 'text/html');
-                            const newContent = doc.getElementById('orders-container').innerHTML;
-                            document.getElementById('orders-container').innerHTML = newContent;
-
-                            // Aplica o destaque apenas aos pedidos que chegaram agora
-                            const cards = document.querySelectorAll('.order-card');
-                            cards.forEach(card => {
-                                const orderId = parseInt(card.dataset.orderId);
-                                if (orderId > oldLatestId) {
-                                    card.classList.add('new-order');
-                                }
-                            });
-                        });
+            if (card && card.classList.contains('new-order')) {
+                if (e.target.closest('a') || e.target.closest('button')) {
+                    card.classList.remove('new-order');
                 }
-            });
-    }, 10000); // 10000 ms = 10 segundos
+            }
+        });
+    }
+
+    // ===== Função para atualizar pedidos =====
+    function updateOrders(oldLatestId) {
+
+        fetch(window.location.href)
+            .then(response => response.text())
+            .then(html => {
+
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+
+                const newContent = doc.getElementById('orders-container');
+
+                if (!newContent || !ordersContainer) return;
+
+                ordersContainer.innerHTML = newContent.innerHTML;
+
+                // ===== Destaca pedidos novos =====
+                const cards = document.querySelectorAll('.order-card');
+
+                cards.forEach(card => {
+                    const orderId = parseInt(card.dataset.orderId);
+
+                    if (orderId > oldLatestId) {
+                        card.classList.add('new-order');
+                    }
+                });
+
+            })
+            .catch(error => console.error('Erro ao atualizar lista:', error));
+    }
+
+    // ===== Verifica novos pedidos =====
+    function checkNewOrders() {
+
+        fetch(checkUrl)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erro ao consultar pedidos');
+                }
+                return response.json();
+            })
+            .then(data => {
+
+                if (data.latest_id > currentLatestId) {
+
+                    const oldLatestId = currentLatestId;
+                    currentLatestId = data.latest_id;
+
+                    console.log("Novo pedido:", data.latest_id);
+
+                    notificationSound.play().catch(() => {});
+
+                    updateOrders(oldLatestId);
+                }
+            })
+            .catch(error => console.error('Erro ao verificar pedidos:', error));
+    }
+
+    // ===== Executa verificação a cada 5 segundos =====
+    setInterval(checkNewOrders, 5000);
 
 });
 </script>
