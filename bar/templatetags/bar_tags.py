@@ -10,8 +10,9 @@ def comandas_abertas(context):
     if user and user.is_authenticated and hasattr(user, 'tenant'):
         comandas = BarComanda.objects.filter(
             tenant=user.tenant, 
-            status='aberta'
-        ).order_by('numero_mesa')
+            status='aberta',
+            itens__isnull=False
+        ).distinct().order_by('numero_mesa')
     else:
         comandas = []
     

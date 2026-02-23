@@ -38,13 +38,16 @@
         }
 
         .sidebar h2 {
-            font-size: 1.5rem;
+            font-size: 1.0rem;
             text-align: center;
-            color: #007bff;
-            margin-bottom: 30px;
+            background-color: #9561e3;
+            color: #fff;
+            margin: -20px -20px 20px -20px;
+            padding: 10px;
         }
 
-        .sidebar a {
+        .sidebar a,
+        .sidebar .menu-trigger {
             display: block;
             padding: 12px 15px;
             text-decoration: none;
@@ -53,22 +56,88 @@
             margin-bottom: 8px;
             font-weight: 600;
             transition: background-color 0.2s, color 0.2s;
+            cursor: pointer;
+            border: none;
+            width: 100%;
+            text-align: left;
+            background: none;
+            font-family: inherit;
+            font-size: 1rem;
         }
 
         .sidebar a:hover,
-        .sidebar a.active {
-            background-color: #007bff;
-            color: #fff;
+        .sidebar a.active,
+        .sidebar .menu-trigger:hover {
+            background-color: #f3e8ff;
+            color: #5a2d9c;
+        }
+
+        .submenu {
+            display: none;
+            padding-left: 15px;
+            margin-bottom: 10px;
+        }
+
+        .submenu.active {
+            display: block;
+        }
+
+        .menu-trigger {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .menu-trigger .material-icons {
+            transition: transform 0.3s;
+        }
+
+        .menu-trigger.active .material-icons {
+            transform: rotate(180deg);
         }
 
         .content {
             flex-grow: 1;
-            padding: 20px;
             margin-left: 200px;
-            /* Adjusted to match sidebar width */
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+        }
+
+        .top-header {
+            background-color: #fff;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        .top-header a {
+            text-decoration: none;
+            color: #5a2d9c;
+            font-weight: 600;
+            padding: 8px 12px;
+            border-radius: 6px;
+            transition: background 0.2s;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .top-header a:hover {
+            background-color: #f3e8ff;
+        }
+
+        .main-content {
+            padding: 20px;
+            flex-grow: 1;
         }
 
         /* Estilos Mobile */
@@ -169,9 +238,12 @@
         {% load bar_tags %}
         {% comandas_abertas %}
         {% elif user.tenant.business_type == 'bar_delivery' %}
-        <h3 style="font-size: 1rem; color: #007bff; margin-top: 10px; margin-bottom: 5px; padding-left: 10px;">Delivery
-        </h3>
         <a href="{% url 'shop:inicio' %}">Início</a>
+
+        <div
+            style="margin-top: 20px; margin-bottom: 10px; padding-left: 10px; font-size: 0.85rem; font-weight: 700; color: #9561e3; text-transform: uppercase; letter-spacing: 1px;">
+            Delivery
+        </div>
         <a href="{% url 'delivery:menu_admin' %}">Cardápio Admin</a>
         <a href="{% url 'delivery:pos' %}">Vendas (PDV)</a>
         <a href="{% url 'delivery:combo_admin' %}">Combos</a>
@@ -179,21 +251,8 @@
         <a href="{% url 'delivery:customer_menu' tenant_slug=user.tenant.slug %}" target="_blank">Cardápio Cliente</a>
         <a href="{% url 'delivery:menu_online' %}">Cardápio Online</a>
         <a href="{% url 'delivery:reports' %}">Relatório Delivery</a>
-
-        <h3 style="font-size: 1rem; color: #007bff; margin-top: 20px; margin-bottom: 5px; padding-left: 10px;">Bar</h3>
-        <a href="{% url 'bar:menu_admin' %}">Cardápio Bar</a>
-        {% if user.tenant.is_open %}
-        <a href="{% url 'bar:mesas' %}">Mesas</a>
-        {% else %}
-        <span style="color: #6c757d; cursor: not-allowed;" title="Bar fechado">Mesas (Bar Fechado)</span>
         {% endif %}
-        <a href="{% url 'bar:configuracoes' %}">Configurações Bar</a>
-        <a href="{% url 'bar:reports' %}">Relatório Bar</a>
-
-        <h3 style="margin-top: 20px; font-size: 0.9rem; color: #007bff;">Comandas Abertas</h3>
-        {% load bar_tags %}
-        {% comandas_abertas %}
-        {% endif %}
+        <a href="{% url 'password_change' %}">Alterar Senha</a>
         <a href="{% url 'logout' %}">Logout</a>
 
         {% if messages %}
@@ -209,7 +268,32 @@
         {% endif %}
     </div>
     <div class="content">
-        <main>
+        {% if user.is_authenticated and user.tenant.business_type == 'bar_delivery' %}
+        <header class="top-header">
+            <div
+                style="font-weight: 700; color: #5a2d9c; margin-right: 15px; border-right: 2px solid #f3e8ff; padding-right: 15px;">
+                BAR</div>
+            <a href="{% url 'bar:menu_admin' %}"><span class="material-icons"
+                    style="font-size: 18px;">restaurant_menu</span> Cardápio</a>
+            {% if user.tenant.is_open %}
+            <a href="{% url 'bar:mesas' %}"><span class="material-icons" style="font-size: 18px;">grid_view</span>
+                Mesas</a>
+            {% endif %}
+            <a href="{% url 'bar:configuracoes' %}"><span class="material-icons"
+                    style="font-size: 18px;">settings</span> Configurações</a>
+            <a href="{% url 'bar:reports' %}"><span class="material-icons" style="font-size: 18px;">assessment</span>
+                Relatórios</a>
+
+            <div
+                style="margin-left: 20px; padding-left: 20px; border-left: 2px solid #f3e8ff; display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 0.8rem; font-weight: 700; color: #9561e3;">COMANDAS:</span>
+                {% load bar_tags %}
+                {% comandas_abertas %}
+            </div>
+        </header>
+        {% endif %}
+
+        <main class="main-content">
             {% block content %}
             {% endblock %}
         </main>
@@ -223,6 +307,12 @@
         function toggleMenu() {
             document.getElementById('sidebar').classList.toggle('active');
             document.querySelector('.overlay').classList.toggle('active');
+        }
+
+        function toggleSubmenu(id, el) {
+            const submenu = document.getElementById(id);
+            submenu.classList.toggle('active');
+            el.classList.toggle('active');
         }
     </script>
 </body>

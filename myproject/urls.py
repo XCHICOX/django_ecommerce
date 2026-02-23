@@ -15,6 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.contrib.auth import views as auth_views
 from myproject import views as myproject_views
 from shop import views as shop_views
 from django.conf import settings
@@ -38,6 +39,8 @@ urlpatterns = [
     path('login/', myproject_views.login_view, name='login'),
     path('inicio/', shop_views.inicio_view, name='inicio'),
     path('logout/', myproject_views.logout_view, name='logout'),
+    path('alterar-senha/', auth_views.PasswordChangeView.as_view(template_name='password_change.html'), name='password_change'),
+    path('alterar-senha/sucesso/', auth_views.PasswordChangeDoneView.as_view(template_name='password_change_done.html'), name='password_change_done'),
 
     # Nova URL da vitrine individual, usando o slug do tenant
     path('vitrine/<slug:tenant_slug>/', include('shop.urls_vitrine')),
