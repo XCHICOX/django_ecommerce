@@ -10,29 +10,30 @@
         gap: 20px;
         margin-top: 20px;
     }
-    
+
     .menu-section {
         background-color: #fff;
         padding: 20px;
         border-radius: 8px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     }
-    
+
     .comanda-section {
         background-color: #fff;
         padding: 20px;
         border-radius: 8px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         position: sticky;
         top: 20px;
         height: fit-content;
     }
-    
+
     .menu-categoria {
         margin-bottom: 30px;
-        display: none; /* Esconder por padrão */
+        display: none;
+        /* Esconder por padrão */
     }
-    
+
     .categoria-titulo {
         font-size: 1.2rem;
         font-weight: bold;
@@ -45,32 +46,32 @@
         justify-content: space-between;
         align-items: center;
     }
-    
+
     .categoria-titulo:hover {
         color: #007bff;
     }
-    
+
     .categoria-conteudo {
         display: block;
     }
-    
+
     .categoria-conteudo.collapsed {
         display: none;
     }
-    
+
     .categoria-toggle {
         font-size: 1rem;
         transition: transform 0.3s ease;
     }
-    
+
     .categoria-titulo.collapsed .categoria-toggle {
         transform: rotate(-90deg);
     }
-    
+
     .search-bar {
         margin-bottom: 20px;
     }
-    
+
     .search-bar input {
         width: 100%;
         padding: 10px;
@@ -78,14 +79,14 @@
         border-radius: 6px;
         font-size: 1rem;
     }
-    
+
     .categorias-grid {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
         gap: 15px;
         margin-bottom: 20px;
     }
-    
+
     .categoria-tab {
         background-color: #f8f9fa;
         border: 1px solid #e9ecef;
@@ -97,18 +98,18 @@
         font-weight: bold;
         color: #495057;
     }
-    
+
     .categoria-tab:hover {
         background-color: #e9ecef;
         border-color: #007bff;
     }
-    
+
     .categoria-tab.active {
         background-color: #007bff;
         color: white;
         border-color: #007bff;
     }
-    
+
     .menu-item {
         display: flex;
         justify-content: space-between;
@@ -120,27 +121,28 @@
         cursor: pointer;
         transition: background-color 0.2s;
     }
-    
+
     .menu-item:hover {
         background-color: #f8f9fa;
     }
-    
+
     .item-info h4 {
         margin: 0 0 5px 0;
         font-size: 1rem;
     }
-    
+
     .item-preco {
         font-weight: bold;
         color: #28a745;
     }
-    
+
     .comanda-header {
         border-bottom: 2px solid #007bff;
         padding-bottom: 10px;
         margin-bottom: 20px;
+        font-size: 25px;
     }
-    
+
     .comanda-item {
         display: flex;
         justify-content: space-between;
@@ -148,49 +150,100 @@
         padding: 10px 0;
         border-bottom: 1px solid #e9ecef;
     }
-    
+
     .item-detalhes h5 {
         margin: 0 0 5px 0;
         font-size: 0.9rem;
     }
-    
+
     .item-controls {
         display: flex;
         align-items: center;
         gap: 10px;
     }
-    
+
     .quantidade-input {
-        width: 60px;
+        width: 40px;
         text-align: center;
         border: 1px solid #ced4da;
-        border-radius: 4px;
+        border-left: none;
+        border-right: none;
         padding: 4px;
+        font-weight: bold;
     }
-    
+
+    .btn-qty {
+        background-color: #f8f9fa;
+        border: 1px solid #ced4da;
+        padding: 4px 10px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.2s;
+    }
+
+    .btn-qty:hover {
+        background-color: #e9ecef;
+    }
+
+    .btn-qty.minus {
+        border-radius: 4px 0 0 4px;
+        background-color: #dc3545;
+        color: white;
+        border: 1px solid #dc3545;
+    }
+
+    .btn-qty.minus:hover {
+        background-color: #c82333;
+        border-color: #bd2130;
+    }
+
+    .btn-qty.plus {
+        border-radius: 0 4px 4px 0;
+        background-color: #28a745;
+        color: white;
+        border: 1px solid #28a745;
+    }
+
+    .btn-qty.plus:hover {
+        background-color: #218838;
+        border-color: #1e7e34;
+    }
+
+    /* Esconder setas do input number */
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+
     .btn-remover {
         background-color: #dc3545;
         color: white;
         border: none;
         border-radius: 4px;
-        padding: 4px 8px;
+        padding: 4px 10px;
         cursor: pointer;
-        font-size: 0.8rem;
+        font-size: 1rem;
+        margin-left: 10px;
     }
-    
+
     .comanda-total {
         margin-top: 20px;
         padding-top: 15px;
         border-top: 2px solid #e9ecef;
         text-align: center;
     }
-    
+
     .total-valor {
         font-size: 1.5rem;
         font-weight: bold;
         color: #28a745;
     }
-    
+
     .btn-acao {
         width: 100%;
         padding: 12px;
@@ -201,16 +254,16 @@
         cursor: pointer;
         transition: background-color 0.3s;
     }
-    
+
     .btn-salvar {
         background-color: #28a745;
         color: white;
     }
-    
+
     .btn-salvar:hover {
         background-color: #218838;
     }
-    
+
     .btn-imprimir {
         background-color: #17a2b8;
         color: white;
@@ -224,20 +277,20 @@
         width: 100%;
         transition: background-color 0.3s;
     }
-    
+
     .btn-imprimir:hover {
         background-color: #138496;
     }
-    
+
     .btn-fechar {
         background-color: #ffc107;
         color: #212529;
     }
-    
+
     .btn-fechar:hover {
         background-color: #e0a800;
     }
-    
+
     .add-item-modal {
         display: none;
         position: fixed;
@@ -245,12 +298,12 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background-color: rgba(0,0,0,0.5);
+        background-color: rgba(0, 0, 0, 0.5);
         z-index: 1000;
         align-items: center;
         justify-content: center;
     }
-    
+
     .modal-content {
         background-color: white;
         padding: 20px;
@@ -258,38 +311,39 @@
         width: 400px;
         max-width: 90%;
     }
-    
+
     .modal-header {
         border-bottom: 1px solid #e9ecef;
         padding-bottom: 10px;
         margin-bottom: 20px;
     }
-    
+
     .modal-body {
         margin-bottom: 20px;
     }
-    
+
     .form-group {
         margin-bottom: 15px;
     }
-    
+
     .form-group label {
         display: block;
         margin-bottom: 5px;
         font-weight: 600;
     }
-    
-    .form-group input, .form-group textarea {
+
+    .form-group input,
+    .form-group textarea {
         width: 100%;
         padding: 8px;
         border: 1px solid #ced4da;
         border-radius: 4px;
     }
-    
+
     .modal-footer {
         text-align: right;
     }
-    
+
     .btn-modal {
         padding: 8px 16px;
         border: none;
@@ -297,12 +351,12 @@
         cursor: pointer;
         margin-left: 10px;
     }
-    
+
     .btn-primary {
         background-color: #007bff;
         color: white;
     }
-    
+
     .btn-secondary {
         background-color: #6c757d;
         color: white;
@@ -313,23 +367,24 @@
     <!-- Seção do Menu -->
     <div class="menu-section">
         <h3>Cardápio</h3>
-        
+
         <!-- Barra de Busca -->
         <div class="search-bar">
             <input type="text" id="search-input" placeholder="Buscar itens...">
         </div>
-        
+
         {% regroup menu_items by category as categorias %}
-        
+
         <!-- Abas das Categorias -->
         <div class="categorias-grid">
             {% for categoria in categorias %}
-            <div class="categoria-tab" data-categoria="{{ categoria.grouper.name }}" onclick="selecionarCategoria('{{ categoria.grouper.name }}')">
+            <div class="categoria-tab" data-categoria="{{ categoria.grouper.name }}"
+                onclick="selecionarCategoria('{{ categoria.grouper.name }}')">
                 {{ categoria.grouper.name }}
             </div>
             {% endfor %}
         </div>
-        
+
         <!-- Conteúdo das Categorias -->
         {% for categoria in categorias %}
         <div class="menu-categoria" data-categoria="{{ categoria.grouper.name }}">
@@ -339,7 +394,8 @@
             </h4>
             <div class="categoria-conteudo">
                 {% for item in categoria.list %}
-                <div class="menu-item" onclick="adicionarItem({{ item.id }}, '{{ item.name }}', {{ item.price }})">
+                <div class="menu-item"
+                    onclick="adicionarItem('{{ item.id }}', '{{ item.name|escapejs }}', '{{ item.price }}')">
                     <div class="item-info">
                         <h4>{{ item.name }}</h4>
                     </div>
@@ -350,7 +406,7 @@
         </div>
         {% endfor %}
     </div>
-    
+
     <!-- Seção da Comanda -->
     <div class="comanda-section">
         <div class="comanda-header">
@@ -359,7 +415,7 @@
                 Aberta em: {{ comanda.data_abertura|date:"d/m/Y H:i" }}
             </p>
         </div>
-        
+
         <div id="itens-comanda">
             {% for item in comanda.itens.all %}
             <div class="comanda-item" data-item-id="{{ item.id }}">
@@ -375,19 +431,21 @@
                     {% endif %}
                 </div>
                 <div class="item-controls">
-                    <input type="number" class="quantidade-input" value="{{ item.quantidade }}" 
-                           min="1" onchange="atualizarQuantidade({{ item.id }}, this.value)">
-                    <button class="btn-remover" onclick="removerItem({{ item.id }})">×</button>
+                    <button class="btn-qty minus" onclick="alterarQuantidade('{{ item.id }}', -1)">-</button>
+                    <input type="number" class="quantidade-input" id="qty-{{ item.id }}" value="{{ item.quantidade }}"
+                        min="1" onchange="atualizarQuantidade('{{ item.id }}', this.value)">
+                    <button class="btn-qty plus" onclick="alterarQuantidade('{{ item.id }}', 1)">+</button>
+                    <button class="btn-remover" onclick="removerItem('{{ item.id }}')">×</button>
                 </div>
             </div>
             {% endfor %}
         </div>
-        
+
         <div class="comanda-total">
             <p style="margin: 0; color: #6c757d;">Total</p>
             <div class="total-valor" id="total-valor">R$ {{ comanda.total|floatformat:2 }}</div>
         </div>
-        
+
         {% if tenant.permitir_gorjeta_10 %}
         <div style="margin: 15px 0; padding: 10px; background-color: #f8f9fa; border-radius: 6px;">
             <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
@@ -403,11 +461,11 @@
         <button class="btn-acao btn-salvar" onclick="salvarComanda()">
             💾 Salvar Comanda
         </button>
-        
+
         <button class="btn-acao btn-imprimir" onclick="imprimirComanda()">
             🖨️ Imprimir
         </button>
-        
+
         <button class="btn-acao btn-fechar" onclick="fecharComanda()">
             ✅ Fechar Comanda
         </button>
@@ -424,11 +482,16 @@
             {% csrf_token %}
             <input type="hidden" name="action" value="add_item">
             <input type="hidden" name="item_id" id="modal-item-id">
-            
+
             <div class="modal-body">
                 <div class="form-group">
                     <label>Quantidade:</label>
-                    <input type="number" name="quantidade" value="1" min="1" required>
+                    <div style="display: flex; align-items: center;">
+                        <button type="button" class="btn-qty minus" onclick="alterarQuantidadeModal(-1)">-</button>
+                        <input type="number" name="quantidade" id="modal-quantidade" value="1" min="1" required
+                            style="width: 60px; text-align: center; border: 1px solid #ced4da; border-left: none; border-right: none; border-radius: 0;">
+                        <button type="button" class="btn-qty plus" onclick="alterarQuantidadeModal(1)">+</button>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label>Observação:</label>
@@ -444,245 +507,264 @@
 </div>
 
 <!-- Formulário oculto para fechar a comanda -->
-<form id="fecharComandaForm" method="post" action="{% url 'bar:fechar_comanda' numero_mesa=numero_mesa %}" style="display: none;">
+<form id="fecharComandaForm" method="post" action="{% url 'bar:fechar_comanda' numero_mesa=numero_mesa %}"
+    style="display: none;">
     {% csrf_token %}
 </form>
 
 <script>
-let selectedItemId = null;
-let selectedItemName = '';
-let selectedItemPrice = 0;
+    let selectedItemId = null;
+    let selectedItemName = '';
+    let selectedItemPrice = 0;
 
-function adicionarItem(itemId, itemName, itemPrice) {
-    selectedItemId = itemId;
-    selectedItemName = itemName;
-    selectedItemPrice = itemPrice;
-    
-    document.getElementById('modal-item-id').value = itemId;
-    document.getElementById('modal-title').textContent = 'Adicionar: ' + itemName;
-    document.getElementById('addItemModal').style.display = 'flex';
-}
+    function adicionarItem(itemId, itemName, itemPrice) {
+        selectedItemId = itemId;
+        selectedItemName = itemName;
+        selectedItemPrice = itemPrice;
 
-function fecharModal() {
-    document.getElementById('addItemModal').style.display = 'none';
-    document.getElementById('addItemForm').reset();
-}
-
-function atualizarQuantidade(itemId, quantidade) {
-    if (quantidade <= 0) {
-        if (confirm('Remover este item da comanda?')) {
-            removerItem(itemId);
-        } else {
-            // Recarregar a página para reverter a mudança
-            location.reload();
-        }
-        return;
+        document.getElementById('modal-item-id').value = itemId;
+        document.getElementById('modal-quantidade').value = 1; // Reset quantity to 1
+        document.getElementById('modal-title').textContent = 'Adicionar: ' + itemName;
+        document.getElementById('addItemModal').style.display = 'flex';
     }
-    
-    // Enviar atualização via AJAX
-    const formData = new FormData();
-    formData.append('action', 'update_quantidade');
-    formData.append('item_id', itemId);
-    formData.append('quantidade', quantidade);
-    
-    fetch(window.location.href, {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-        }
-    }).then(response => {
-        if (response.ok) {
-            location.reload();
-        } else {
-            alert('Erro ao atualizar quantidade');
-        }
-    });
-}
 
-function removerItem(itemId) {
-    if (!confirm('Remover este item da comanda?')) {
-        return;
+    function alterarQuantidade(itemId, delta) {
+        const input = document.getElementById('qty-' + itemId);
+        if (!input) return;
+        let novaQuantidade = parseInt(input.value) + delta;
+        if (novaQuantidade < 1) novaQuantidade = 1;
+        input.value = novaQuantidade;
+        atualizarQuantidade(itemId, novaQuantidade);
     }
-    
-    const formData = new FormData();
-    formData.append('action', 'remove_item');
-    formData.append('item_id', itemId);
-    
-    fetch(window.location.href, {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-        }
-    }).then(response => {
-        if (response.ok) {
-            location.reload();
-        } else {
-            alert('Erro ao remover item');
-        }
-    });
-}
 
-function salvarComanda() {
-    if (!confirm('Salvar comanda?')) {
-        return;
+    function alterarQuantidadeModal(delta) {
+        const input = document.getElementById('modal-quantidade');
+        if (!input) return;
+        let novaQuantidade = parseInt(input.value) + delta;
+        if (novaQuantidade < 1) novaQuantidade = 1;
+        input.value = novaQuantidade;
     }
-    
-    // Verificar se o checkbox de gorjeta está marcado
-    const checkbox = document.getElementById('gorjeta-10-checkbox');
-    const incluirGorjeta = checkbox.checked;
-    
-    // Construir URL com parâmetro se necessário
-    let url = '/bar/salvar-comanda/{{ numero_mesa }}/';
-    if (incluirGorjeta) {
-        url += '?gorjeta_10=on';
-    }
-    
-    window.location.href = url;
-}
 
-function imprimirComanda() {
-    if (!confirm('Imprimir comanda em 80mm térmica?')) {
-        return;
+    function fecharModal() {
+        document.getElementById('addItemModal').style.display = 'none';
+        document.getElementById('addItemForm').reset();
     }
-    
-    // Verificar se o checkbox de gorjeta está marcado
-    const checkbox = document.getElementById('gorjeta-10-checkbox');
-    const incluirGorjeta = checkbox.checked;
-    
-    // Construir URL com parâmetro se necessário
-    let url = '/bar/imprimir-comanda/{{ numero_mesa }}/';
-    if (incluirGorjeta) {
-        url += '?gorjeta_10=on';
-    }
-    
-    window.location.href = url;
-}
 
-function fecharComanda() {
-    if (!confirm('Fechar comanda? Após fechar, não será possível adicionar mais itens.')) {
-        return;
-    }
-    
-    // Submete o formulário oculto que contém o estado do checkbox da gorjeta
-    document.getElementById('fecharComandaForm').submit();
-}
-
-// Função para buscar itens
-document.getElementById('search-input').addEventListener('input', function() {
-    const searchTerm = this.value.toLowerCase().trim();
-    const menuItems = document.querySelectorAll('.menu-item');
-    const categorias = document.querySelectorAll('.menu-categoria');
-    
-    if (searchTerm) {
-        // Quando há busca, mostrar todas as categorias
-        categorias.forEach(cat => {
-            cat.style.display = 'block';
-        });
-        
-        // Expandir todas as categorias
-        document.querySelectorAll('.categoria-conteudo').forEach(conteudo => {
-            conteudo.classList.remove('collapsed');
-        });
-        document.querySelectorAll('.categoria-titulo').forEach(titulo => {
-            titulo.classList.remove('collapsed');
-        });
-        
-        // Filtrar itens
-        let hasResults = false;
-        menuItems.forEach(item => {
-            const itemName = item.querySelector('h4').textContent.toLowerCase();
-            if (itemName.includes(searchTerm)) {
-                item.style.display = 'flex';
-                hasResults = true;
+    function atualizarQuantidade(itemId, quantidade) {
+        if (quantidade <= 0) {
+            if (confirm('Remover este item da comanda?')) {
+                removerItem(itemId);
             } else {
-                item.style.display = 'none';
+                // Recarregar a página para reverter a mudança
+                location.reload();
+            }
+            return;
+        }
+
+        // Enviar atualização via AJAX
+        const formData = new FormData();
+        formData.append('action', 'update_quantidade');
+        formData.append('item_id', itemId);
+        formData.append('quantidade', quantidade);
+
+        fetch(window.location.href, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        }).then(response => {
+            if (response.ok) {
+                location.reload();
+            } else {
+                alert('Erro ao atualizar quantidade');
             }
         });
-        
-        // Se não há resultados, mostrar mensagem
-        if (!hasResults) {
-            // Poderia adicionar uma mensagem, mas por enquanto apenas esconde
+    }
+
+    function removerItem(itemId) {
+        if (!confirm('Remover este item da comanda?')) {
+            return;
         }
-    } else {
-        // Quando não há busca, voltar ao estado normal: mostrar apenas a aba ativa
-        const abaAtiva = document.querySelector('.categoria-tab.active');
-        if (abaAtiva) {
-            const categoriaNome = abaAtiva.getAttribute('data-categoria');
-            selecionarCategoria(categoriaNome);
+
+        const formData = new FormData();
+        formData.append('action', 'remove_item');
+        formData.append('item_id', itemId);
+
+        fetch(window.location.href, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        }).then(response => {
+            if (response.ok) {
+                location.reload();
+            } else {
+                alert('Erro ao remover item');
+            }
+        });
+    }
+
+    function salvarComanda() {
+        if (!confirm('Salvar comanda?')) {
+            return;
+        }
+
+        // Verificar se o checkbox de gorjeta está marcado
+        const checkbox = document.getElementById('gorjeta-10-checkbox');
+        const incluirGorjeta = checkbox.checked;
+
+        // Construir URL com parâmetro se necessário
+        let url = '/bar/salvar-comanda/{{ numero_mesa }}/';
+        if (incluirGorjeta) {
+            url += '?gorjeta_10=on';
+        }
+
+        window.location.href = url;
+    }
+
+    function imprimirComanda() {
+        if (!confirm('Imprimir comanda em 80mm térmica?')) {
+            return;
+        }
+
+        // Verificar se o checkbox de gorjeta está marcado
+        const checkbox = document.getElementById('gorjeta-10-checkbox');
+        const incluirGorjeta = checkbox.checked;
+
+        // Construir URL com parâmetro se necessário
+        let url = '/bar/imprimir-comanda/{{ numero_mesa }}/';
+        if (incluirGorjeta) {
+            url += '?gorjeta_10=on';
+        }
+
+        window.location.href = url;
+    }
+
+    function fecharComanda() {
+        if (!confirm('Fechar comanda? Após fechar, não será possível adicionar mais itens.')) {
+            return;
+        }
+
+        // Submete o formulário oculto que contém o estado do checkbox da gorjeta
+        document.getElementById('fecharComandaForm').submit();
+    }
+
+    // Função para buscar itens
+    document.getElementById('search-input').addEventListener('input', function () {
+        const searchTerm = this.value.toLowerCase().trim();
+        const menuItems = document.querySelectorAll('.menu-item');
+        const categorias = document.querySelectorAll('.menu-categoria');
+
+        if (searchTerm) {
+            // Quando há busca, mostrar todas as categorias
+            categorias.forEach(cat => {
+                cat.style.display = 'block';
+            });
+
+            // Expandir todas as categorias
+            document.querySelectorAll('.categoria-conteudo').forEach(conteudo => {
+                conteudo.classList.remove('collapsed');
+            });
+            document.querySelectorAll('.categoria-titulo').forEach(titulo => {
+                titulo.classList.remove('collapsed');
+            });
+
+            // Filtrar itens
+            let hasResults = false;
+            menuItems.forEach(item => {
+                const itemName = item.querySelector('h4').textContent.toLowerCase();
+                if (itemName.includes(searchTerm)) {
+                    item.style.display = 'flex';
+                    hasResults = true;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+
+            // Se não há resultados, mostrar mensagem
+            if (!hasResults) {
+                // Poderia adicionar uma mensagem, mas por enquanto apenas esconde
+            }
         } else {
-            // Se nenhuma aba ativa, mostrar primeira
-            const primeiraAba = document.querySelector('.categoria-tab');
-            if (primeiraAba) {
-                selecionarCategoria(primeiraAba.getAttribute('data-categoria'));
+            // Quando não há busca, voltar ao estado normal: mostrar apenas a aba ativa
+            const abaAtiva = document.querySelector('.categoria-tab.active');
+            if (abaAtiva) {
+                const categoriaNome = abaAtiva.getAttribute('data-categoria');
+                selecionarCategoria(categoriaNome);
+            } else {
+                // Se nenhuma aba ativa, mostrar primeira
+                const primeiraAba = document.querySelector('.categoria-tab');
+                if (primeiraAba) {
+                    selecionarCategoria(primeiraAba.getAttribute('data-categoria'));
+                }
+            }
+
+            // Mostrar todos os itens novamente
+            menuItems.forEach(item => {
+                item.style.display = 'flex';
+            });
+        }
+    });
+
+    // Função para selecionar categoria
+    function selecionarCategoria(categoriaNome) {
+        // Remover classe active de todas as abas
+        document.querySelectorAll('.categoria-tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+
+        // Adicionar classe active à aba clicada
+        const tabAtiva = document.querySelector(`.categoria-tab[data-categoria="${categoriaNome}"]`);
+        if (tabAtiva) {
+            tabAtiva.classList.add('active');
+        }
+
+        // Esconder todas as categorias
+        document.querySelectorAll('.menu-categoria').forEach(cat => {
+            cat.style.display = 'none';
+        });
+
+        // Mostrar apenas a categoria selecionada e expandir
+        const categoriaSelecionada = document.querySelector(`.menu-categoria[data-categoria="${categoriaNome}"]`);
+        if (categoriaSelecionada) {
+            categoriaSelecionada.style.display = 'block';
+            const titulo = categoriaSelecionada.querySelector('.categoria-titulo');
+            const conteudo = categoriaSelecionada.querySelector('.categoria-conteudo');
+            titulo.classList.remove('collapsed');
+            conteudo.classList.remove('collapsed');
+        }
+    }
+
+    // Função para toggle de categoria
+    function toggleCategoria(tituloElement) {
+        const conteudo = tituloElement.nextElementSibling;
+        tituloElement.classList.toggle('collapsed');
+        conteudo.classList.toggle('collapsed');
+    }
+
+    // Inicializar: mostrar primeira categoria por padrão
+    document.addEventListener('DOMContentLoaded', function () {
+        const primeiraAba = document.querySelector('.categoria-tab');
+        if (primeiraAba) {
+            primeiraAba.classList.add('active');
+            const primeiraCategoria = document.querySelector('.menu-categoria');
+            if (primeiraCategoria) {
+                primeiraCategoria.style.display = 'block';
+                // Manter expandida
             }
         }
-        
-        // Mostrar todos os itens novamente
-        menuItems.forEach(item => {
-            item.style.display = 'flex';
+
+        // Colapsar todas as outras categorias
+        document.querySelectorAll('.menu-categoria').forEach((cat, index) => {
+            if (index > 0) {
+                const titulo = cat.querySelector('.categoria-titulo');
+                const conteudo = cat.querySelector('.categoria-conteudo');
+                titulo.classList.add('collapsed');
+                conteudo.classList.add('collapsed');
+            }
         });
-    }
-});
-
-// Função para selecionar categoria
-function selecionarCategoria(categoriaNome) {
-    // Remover classe active de todas as abas
-    document.querySelectorAll('.categoria-tab').forEach(tab => {
-        tab.classList.remove('active');
     });
-    
-    // Adicionar classe active à aba clicada
-    const tabAtiva = document.querySelector(`.categoria-tab[data-categoria="${categoriaNome}"]`);
-    if (tabAtiva) {
-        tabAtiva.classList.add('active');
-    }
-    
-    // Esconder todas as categorias
-    document.querySelectorAll('.menu-categoria').forEach(cat => {
-        cat.style.display = 'none';
-    });
-    
-    // Mostrar apenas a categoria selecionada e expandir
-    const categoriaSelecionada = document.querySelector(`.menu-categoria[data-categoria="${categoriaNome}"]`);
-    if (categoriaSelecionada) {
-        categoriaSelecionada.style.display = 'block';
-        const titulo = categoriaSelecionada.querySelector('.categoria-titulo');
-        const conteudo = categoriaSelecionada.querySelector('.categoria-conteudo');
-        titulo.classList.remove('collapsed');
-        conteudo.classList.remove('collapsed');
-    }
-}
-
-// Função para toggle de categoria
-function toggleCategoria(tituloElement) {
-    const conteudo = tituloElement.nextElementSibling;
-    tituloElement.classList.toggle('collapsed');
-    conteudo.classList.toggle('collapsed');
-}
-
-// Inicializar: mostrar primeira categoria por padrão
-document.addEventListener('DOMContentLoaded', function() {
-    const primeiraAba = document.querySelector('.categoria-tab');
-    if (primeiraAba) {
-        primeiraAba.classList.add('active');
-        const primeiraCategoria = document.querySelector('.menu-categoria');
-        if (primeiraCategoria) {
-            primeiraCategoria.style.display = 'block';
-            // Manter expandida
-        }
-    }
-    
-    // Colapsar todas as outras categorias
-    document.querySelectorAll('.menu-categoria').forEach((cat, index) => {
-        if (index > 0) {
-            const titulo = cat.querySelector('.categoria-titulo');
-            const conteudo = cat.querySelector('.categoria-conteudo');
-            titulo.classList.add('collapsed');
-            conteudo.classList.add('collapsed');
-        }
-    });
-});
 </script>
 {% endblock %}

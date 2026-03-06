@@ -23,13 +23,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-yoursecretkey'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
-    '5771db14f55a.ngrok-free.app',
-    'localhost',
-    '127.0.0.1',
-    '192.168.0.8'
+    "softlabspb.com.br",
+    "www.softlabspb.com.br",
+    "127.0.0.1",
+    "localhost"
 ]
 CSRF_TRUSTED_ORIGINS = ['https://5771db14f55a.ngrok-free.app']
 
